@@ -1,0 +1,12 @@
+[programs.localnet]
+somos_datum = "24PR27toKrLys6EqJmkMp1U2AAykL6vffMFFcZMhXSqL"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "./node_modules/ts-mocha/bin/ts-mocha -t 1000000 tests/*.ts"

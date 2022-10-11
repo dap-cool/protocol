@@ -1,0 +1,28 @@
+secret.tfvars
+.terraform
+.idea
+*.iml
+
+# css build
+web/css/
+web/node_modules/
+web/package-lock.json
+
+# dev build
+index.html
+!web/index.html
+
+# js build artifacts
+web/js/bundle.js
+
+# elm build artifacts
+elm-stuff/
+dist/
+web/elm.min.js
+
+# rust build artifacts
+target
+.anchor
+
+# test artifacts
+node_modules
