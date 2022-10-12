@@ -7,5 +7,5 @@ export function getProgram(provider) {
 }
 
 export function getProvider(wallet, connection) {
-    new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
+    return new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
 }
