@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tests</title>
+</head>
+<body>
+<pre id="elm"></pre>
+<script src="./dist/elm.js"></script>
+<script>
+    let app = Elm.Main.init({node: document.getElementById("elm")});
+</script>
+<script src="./dist/bundle.js" type="module"></script>
+</body>
+</html>
