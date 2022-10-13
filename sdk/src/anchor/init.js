@@ -1,7 +1,7 @@
 import {web3} from "@project-serum/anchor";
 import {deriveIncrementPda} from "./pda";
 
-export async function initSolana(provider, program, mint) {
+export async function initSolana(program, provider, mint) {
     // derive increment pda
     const incrementPda = await deriveIncrementPda(
         program,

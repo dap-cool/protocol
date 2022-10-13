@@ -30,10 +30,10 @@ export async function uploadFile(file, drive, account) {
     return url.replace(file.name, "");
 }
 
-export function buildMetaData(key, lit, title) {
+export function buildMetaData(key, litArgs, title) {
     const meta = {
         key: key,
-        lit: lit,
+        lit: litArgs,
         title: title
     }
     const json = JSON.stringify(meta);

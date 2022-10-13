@@ -1,9 +1,18 @@
-import {solRpcConditions} from "./util";
+import {LIT_MAIN_NET, solRpcConditions} from "./util";
 import LitJsSdk from "lit-js-sdk";
 import JSZip from "jszip";
 import {saveAs} from "file-saver";
 
-export async function decrypt(url, chain) {
+/**
+ * 1) Fetch metadata from url (shadow-drive)
+ * 2) Fetch encrypted .zip file from url (shadow-drive)
+ * 3) with LIT access-control from metadata fetch the decryption key from LIT Network
+ * 4) decrypt
+ *
+ * @param url {string} - sitting on-chain pointing to shadow-drive
+ * @returns {Promise<this>} - decrypted .zip file
+ */
+export async function decrypt(url) {
     // fetch meta data
     const metaData = await getMetaData(url);
     // build client
@@ -13,7 +22,7 @@ export async function decrypt(url, chain) {
     await client.connect();
     // client signature
     console.log("invoking signature request");
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: chain});
+    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: LIT_MAIN_NET});
     // get encryption key
     console.log("getting key from networking");
     // Note, below we convert the encryptedSymmetricKey from a UInt8Array to a hex string.
@@ -22,7 +31,7 @@ export async function decrypt(url, chain) {
     const uintArray = new Uint8Array(Object.values(metaData.key));
     const encryptedHexKey = LitJsSdk.uint8arrayToString(uintArray, "base16");
     const retrievedSymmetricKey = await client.getEncryptionKey({
-        solRpcConditions: solRpcConditions(metaData.lit, chain),
+        solRpcConditions: solRpcConditions(metaData.lit),
         toDecrypt: encryptedHexKey,
         chain,
         authSig
@@ -52,7 +61,7 @@ export function downloadZip(zip) {
         });
 }
 
-async function getMetaData(url) {
+export async function getMetaData(url) {
     console.log("fetching meta-data");
     return await fetch(url + "meta.json")
         .then(response => response.json());

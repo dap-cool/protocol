@@ -1,29 +1,37 @@
-export const LIT_MAIN_NET = "solana";
-export const LIT_DEV_NET = "solanaDevnet";
+export const LIT_MAIN_NET = "solana" // mainnet only because of shadow-drive
 
-export function solRpcConditions(args, chain) {
+/**
+ * Build the Sol-RPC-Conditions for en/decrypting via LIT Network.
+ *
+ * @param litArgs - typically built with @defaultArgs
+ * @param chain {string} - LIT_MAIN_NET or LIT_DEV_NET
+ * @returns {[{pdaParams: *[], chain, method, pdaInterface: {offset: number, fields: {}}, returnValueTest: {comparator, value, key}, params: *[], pdaKey: string}]}
+ */
+export function solRpcConditions(litArgs) {
     return [
         {
-            method: args.method,
-            params: [args.mint],
+            method: litArgs.method,
+            params: [litArgs.mint],
             pdaParams: [],
             pdaInterface: {offset: 0, fields: {}},
             pdaKey: "",
-            chain,
+            chain: LIT_MAIN_NET,
             returnValueTest: {
-                key: args.returnValueTest.key, // "$.amount"
-                comparator: args.returnValueTest.comparator, // ">"
-                value: args.returnValueTest.value, // "0"
+                key: litArgs.returnValueTest.key, // "$.amount"
+                comparator: litArgs.returnValueTest.comparator, // ">"
+                value: litArgs.returnValueTest.value, // "0"
             },
         },
     ]
 }
 
-export function defaultSolRpcConditions(mint, chain) {
-    return solRpcConditions(defaultArgs(mint), chain)
-}
-
-function defaultArgs(mint) {
+/**
+ * Build default args for LIT Network to en/decrypt with Fungible Tokens as the access-control mechanism.
+ *
+ * @param mint {string}
+ * @returns {{mint, method: string, returnValueTest: {comparator: string, value: string, key: string}}}
+ */
+export function defaultLitArgs(mint) {
     return {
         method: "balanceOfToken",
         mint: mint,
