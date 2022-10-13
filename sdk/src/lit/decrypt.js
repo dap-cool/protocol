@@ -33,7 +33,7 @@ export async function decrypt(url) {
     const retrievedSymmetricKey = await client.getEncryptionKey({
         solRpcConditions: solRpcConditions(metaData.lit),
         toDecrypt: encryptedHexKey,
-        chain,
+        chain: LIT_MAIN_NET,
         authSig
     });
     // get encrypted zip
