@@ -26,7 +26,7 @@ export async function encrypt(files, litArgs) {
     console.log("pushing key to network");
     const encryptedSymmetricKey = await client.saveEncryptionKey({
         solRpcConditions: solRpcConditions(litArgs),
-        chain: chain,
+        chain: LIT_MAIN_NET,
         authSig: authSig,
         symmetricKey: symmetricKey,
         permanent: true
