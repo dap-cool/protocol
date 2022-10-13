@@ -1,8 +1,8 @@
 import {AnchorProvider, web3} from "@project-serum/anchor";
 import {
-    buildMetaData,
-    defaultLitArgs,
-    encrypt,
+    buildMetaData, decrypt,
+    defaultLitArgs, downloadZip,
+    encrypt, getDatumPda, getIncrementPda,
     getProgram,
     getProvider,
     initSolana,
@@ -26,11 +26,16 @@ const program = getProgram(provider);
 // set mint
 const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
 
-export async function init() {
+async function init() {
     await initSolana(program, provider, mint);
 }
 
-export async function e2e() {
+async function e2e() {
+    await upload();
+    await download();
+}
+
+async function upload() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
@@ -40,16 +45,27 @@ export async function e2e() {
     const encrypted = await encrypt(files, litArgs);
     // provision storage on shdw drive
     const provisioned = await provision(connection, provider.wallet, encrypted.file);
-    // mark as immutable
-    await markAsImmutable(provisioned.drive, provisioned.account);
     // uploaded encrypted file
     const url = await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
     // build metadata
     const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
     // upload metadata
     await uploadFile(metadata, provisioned.drive, provisioned.account);
+    // mark as immutable
+    await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
     await uploadSolana(program, provider, mint, url);
+}
+
+async function download() {
+    // get increment pda
+    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
+    // get datum (of latest upload)
+    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    // fetch & decrypt files
+    const decryptedZip = await decrypt(datumPda.url);
+    // download zip
+    downloadZip(decryptedZip);
 }
 
 app.ports.init.subscribe(async function () {

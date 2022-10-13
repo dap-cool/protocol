@@ -69,7 +69,7 @@ view _ =
             , Html.button
                 [ onClick End2End
                 ]
-                [ Html.text "upload"
+                [ Html.text "run e2e"
                 ]
             ]
         ]
