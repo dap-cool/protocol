@@ -4,12 +4,12 @@ Decentralized Protocol for token-gating files
 
 ## Principles ⚖️
 
-* NFTs should provide digital ownership.
+* NFTs should provide digital ownership
     * That means there is some digital asset floating around on the decentralized web that can only be accessed with
       proof-of-ownership.
 * Metadata should be hosted on an immutable decentralized network. Otherwise, it's likely to be edited or deleted at
   some point in the future.
-* Metadata should be encrypted & can only be decrypted via NFT ownership.
+* Metadata should be encrypted & can only be decrypted via NFT ownership
 
 ## Example Use Case 💿
 
@@ -33,7 +33,7 @@ Decentralized Protocol for token-gating files
 
 The [Solana Program](./programs/dap-protocol/src/lib.rs) provides us methods for deterministically finding uploaded
 files
-via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses).
+via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses)
 
 * The [JavaScript SDK](./sdk/src/index.js) provides methods for
     * Encrypting your files with an NFT mint address
