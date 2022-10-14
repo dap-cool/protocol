@@ -2,27 +2,33 @@
 
 Decentralized Protocol for token-gating files
 
-## Principles ⚖️
+* [Developers / SDK](#developers--sdk)
+    * [End-to-end example](#end-to-end-example)
+* [Principles](#principles-)
+* [Example Use Case](#example-use-case-)
+* [How It Works](#how-it-works-)
 
-* NFTs should provide digital ownership
-    * That means there is some digital asset floating around on the decentralized web that can only be accessed with
-      proof-of-ownership.
-* Metadata should be hosted on an immutable decentralized network. Otherwise, it's likely to be edited or deleted at
-  some point in the future.
+# Principles ⚖️
+
+* NFTs should provide ownership of encrypted digital assets (metadata)
+* Metadata should not be limited to .jpeg profile pictures
+    * can be any file(s) or byte-array that you can imagine
+* Metadata should be hosted on an immutable decentralized network
 * Metadata should be encrypted & can only be decrypted via NFT ownership
 
-## Example Use Case 💿
+# Example Use Case 💿
 
 * Exclusive Music
     * Your favorite indie musician already has a catalog on Spotify & other streaming platforms
-    * They release an exclusive project for their biggest fans who are willing to purchase unreleased music
+    * They release an exclusive project for their biggest fans who are willing to purchase music
+        * this release is not made available on streaming platforms or elsewhere
     * 500 copies of this music are printed as an NFT
     * You buy one of the NFTs & can now decrypt the music & even download it
     * The release sold out & there's more fans that missed out on the primary sale
-    * After download your copy you list your NFT for sale
+    * After downloading your copy you list your NFT for sale
     * Someone buys from you & now they can decrypt/download
 
-## How it works 🛠️
+# How it works 🛠️
 
 * Encrypt/decrypt files with an NFT or FT via [LIT Protocol](https://litprotocol.com/)
 * Upload/download encrypted files to decentralized immutable storage
@@ -31,9 +37,8 @@ Decentralized Protocol for token-gating files
 
 # Developers / SDK
 
-The [Solana Program](./programs/dap-protocol/src/lib.rs) provides us methods for deterministically finding uploaded
-files
-via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses)
+* The [Solana Program](./programs/dap-protocol/src/lib.rs) provides methods for deterministically finding uploaded files
+  via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses)
 
 * The [JavaScript SDK](./sdk/src/index.js) provides methods for
     * Encrypting your files with an NFT mint address
