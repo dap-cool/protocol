@@ -6,7 +6,7 @@ Decentralized Protocol for token-gating files
     * [End-to-end example](#end-to-end-example)
 * [Principles](#principles-)
 * [Example Use Case](#example-use-case-)
-* [How It Works](#how-it-works-)
+* [How It Works](#how-it-works-%EF%B8%8F)
 
 # Principles ⚖️
 
