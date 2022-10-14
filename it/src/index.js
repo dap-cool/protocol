@@ -39,7 +39,7 @@ async function upload() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
-    // this is specifying which mint-address you want to "gate" with
+    // // this is specifying which mint-address you want to "gate" with
     const litArgs = defaultLitArgs(mint.toString());
     // encrypt
     const encrypted = await encrypt(files, litArgs);
@@ -58,7 +58,7 @@ async function upload() {
     await uploadFile(metadata, provisioned.drive, provisioned.account);
     // mark as immutable
     // // this takes about 15seconds again to mark the storage as immutable
-    // // technically this optional but we hihgly recommend it to promote web3 ethos
+    // // technically this optional but we highly recommend it to promote web3 ethos
     await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
     // // this is encoding the shadow-drive URL inside a solana pda
@@ -72,7 +72,7 @@ async function download() {
     // // deterministically find how many times this user has uploaded behind this mint
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     // get datum (of latest upload)
-    // // determinstically find the URL of the latest upload
+    // // deterministically find the URL of the latest upload
     const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
     // fetch & decrypt files
     // // super fast thanks to shadow-drive, LIT, and a bunch of WASM

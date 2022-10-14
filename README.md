@@ -1,50 +1,60 @@
 # Dap Cool 🆒 (Digital Asset Protocol)
+
 Decentralized Protocol for token-gating files
 
 ## Principles ⚖️
+
 * NFTs should provide digital ownership.
-  * That means there is some digital asset floating around on the
-  decentralized web that can only be accessed with proof-of-ownership.
-* Metadata should be hosted on an immutable decentralized network. Otherwise, it's likely to be edited or deleted
-at some point in the future.
+    * That means there is some digital asset floating around on the decentralized web that can only be accessed with
+      proof-of-ownership.
+* Metadata should be hosted on an immutable decentralized network. Otherwise, it's likely to be edited or deleted at
+  some point in the future.
 * Metadata should be encrypted & can only be decrypted via NFT ownership.
 
 ## Example Use Case 💿
+
 * Exclusive Music
-  * Your favorite indie musician already has a catalog on Spotify & other streaming platforms
-  * They release an exclusive project for their biggest fans who are willing to purchase unreleased music
-  * 500 copies of this music are printed as an NFT
-  * You buy one of the NFTs & can now decrypt the music & even download it
-  * The release sold out & there's more fans that missed out on the primary sale
-  * After download your copy you list your NFT for sale
-  * Someone buys from you & now they can decrypt/download
+    * Your favorite indie musician already has a catalog on Spotify & other streaming platforms
+    * They release an exclusive project for their biggest fans who are willing to purchase unreleased music
+    * 500 copies of this music are printed as an NFT
+    * You buy one of the NFTs & can now decrypt the music & even download it
+    * The release sold out & there's more fans that missed out on the primary sale
+    * After download your copy you list your NFT for sale
+    * Someone buys from you & now they can decrypt/download
 
 ## How it works 🛠️
+
 * Encrypt/decrypt files with an NFT or FT via [LIT Protocol](https://litprotocol.com/)
-* Upload/download encrypted files to decentralized immutable storage via [Shadow-Drive](https://docs.genesysgo.com/shadow/)
+* Upload/download encrypted files to decentralized immutable storage
+  via [Shadow-Drive](https://docs.genesysgo.com/shadow/)
 * Track state (who downloaded / how many times) via [Solana Program](./programs/dap-protocol/src/lib.rs)
 
 # Developers / SDK
-The [Solana Program](./programs/dap-protocol/src/lib.rs) provides us 
-methods for deterministically finding uploaded files via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses).
+
+The [Solana Program](./programs/dap-protocol/src/lib.rs) provides us methods for deterministically finding uploaded
+files
+via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses).
+
 * The [JavaScript SDK](./sdk/src/index.js) provides methods for
-  * Encrypting your files with an NFT mint address 
-    * typically [FileList](https://developer.mozilla.org/en-US/docs/Web/API/FileList) objects from your HTML input
-      * zips your file-list before encrypting 
-    * can be used to encrypt any arbitrary file object
-  * Uploading your encrypted files to shadow-drive
-  * Deterministically finding the upload URL via solana on-chain state
-  * Fetching your encrypted files from shadow-drive
-  * Decrypting your encrypted files with the NFT
+    * Encrypting your files with an NFT mint address
+        * typically [FileList](https://developer.mozilla.org/en-US/docs/Web/API/FileList) objects from your HTML input
+            * zips your file-list before encrypting
+        * can be used to encrypt any arbitrary file object
+    * Uploading your encrypted files to shadow-drive
+    * Deterministically finding the upload URL via solana on-chain state
+    * Fetching your encrypted files from shadow-drive
+    * Decrypting your encrypted files with the NFT
 
 ## End-to-end example
+
 * check out our [integration test](./it/src/index.js) to see all the imports, how we're bundling, etc.
+
 ```javascript
 async function upload() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
-    // this is specifying which mint-address you want to "gate" with
+    // // this is specifying which mint-address you want to "gate" with
     const litArgs = defaultLitArgs(mint.toString());
     // encrypt
     const encrypted = await encrypt(files, litArgs);
@@ -63,7 +73,7 @@ async function upload() {
     await uploadFile(metadata, provisioned.drive, provisioned.account);
     // mark as immutable
     // // this takes about 15seconds again to mark the storage as immutable
-    // // technically this optional but we hihgly recommend it to promote web3 ethos
+    // // technically this optional but we highly recommend it to promote web3 ethos
     await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
     // // this is encoding the shadow-drive URL inside a solana pda
@@ -77,7 +87,7 @@ async function download() {
     // // deterministically find how many times this user has uploaded behind this mint
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     // get datum (of latest upload)
-    // // determinstically find the URL of the latest upload
+    // // deterministically find the URL of the latest upload
     const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
     // fetch & decrypt files
     // // super fast thanks to shadow-drive, LIT, and a bunch of WASM
