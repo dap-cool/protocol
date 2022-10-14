@@ -39,30 +39,44 @@ async function upload() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
+    // this is specifying which mint-address you want to "gate" with
     const litArgs = defaultLitArgs(mint.toString());
-    console.log(litArgs);
     // encrypt
     const encrypted = await encrypt(files, litArgs);
     // provision storage on shdw drive
+    // // this takes about 15seconds to provision decentralized storage
+    // // you'll want to notify your app what is happening
+    // // these methods are intentionally seperated to provide opportunity to notify progress
     const provisioned = await provision(connection, provider.wallet, encrypted.file);
     // uploaded encrypted file
+    // // this is super fast thanks to shadow-drive throughput
+    // // comparable to an AWS S3 upload
     const url = await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
     // build metadata
     const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
     // upload metadata
     await uploadFile(metadata, provisioned.drive, provisioned.account);
     // mark as immutable
+    // // this takes about 15seconds again to mark the storage as immutable
+    // // technically this optional but we hihgly recommend it to promote web3 ethos
     await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
+    // // this is encoding the shadow-drive URL inside a solana pda
+    // // which means we can deterministically find it & don't need a centralized index
+    // // typically very fast (as fast as any other rpc transaction)
     await uploadSolana(program, provider, mint, url);
 }
 
 async function download() {
     // get increment pda
+    // // deterministically find how many times this user has uploaded behind this mint
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     // get datum (of latest upload)
+    // // determinstically find the URL of the latest upload
     const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
     // fetch & decrypt files
+    // // super fast thanks to shadow-drive, LIT, and a bunch of WASM
+    // // does not charge any gas but does require a message signature (to prove ownership of the mint)
     const decryptedZip = await decrypt(datumPda.url);
     // download zip
     downloadZip(decryptedZip);
