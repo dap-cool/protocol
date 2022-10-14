@@ -8,6 +8,12 @@ Decentralized Protocol for token-gating files
 * [Example Use Case](#example-use-case-)
 * [How It Works](#how-it-works-%EF%B8%8F)
 
+# Install via npm
+
+```shell
+npm i @dap-cool/sdk
+```
+
 # Principles ⚖️
 
 * NFTs should provide ownership of encrypted digital assets (metadata)
