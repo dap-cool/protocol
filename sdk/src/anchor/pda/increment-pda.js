@@ -2,10 +2,10 @@ import {web3} from "@project-serum/anchor";
 
 /**
  * Get Increment PDA
- * @param program {Program}
- * @param mint {PublicKey}
- * @param uploader {PublicKey}
- * @returns {Promise<{mint, uploader, increment: (number|*), pda: PublicKey}>}
+ * @param program - Program
+ * @param mint - PublicKey
+ * @param uploader - PublicKey
+ * @returns {Promise<{mint, uploader, increment: (number|*), pda}>}
  */
 export async function getIncrementPda(program, mint, uploader) {
     let response;

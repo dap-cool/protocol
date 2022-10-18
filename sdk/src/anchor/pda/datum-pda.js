@@ -2,11 +2,11 @@ import {web3} from "@project-serum/anchor";
 
 /**
  * Get Datum PDA
- * @param program {Program}
- * @param mint {PublicKey}
- * @param uploader {PublicKey}
+ * @param program - Program
+ * @param mint - PublicKey
+ * @param uploader - PublicKey
  * @param increment {number}
- * @returns {Promise<{mint, uploader, increment, pda: PublicKey, url}>}
+ * @returns {Promise<{mint, uploader, increment, pda, url}>}
  */
 export async function getDatumPda(program, mint, uploader, increment) {
     let response;
