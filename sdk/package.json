@@ -34,6 +34,7 @@
     "lit-js-sdk": "^1.1.211"
   },
   "devDependencies": {
-    "microbundle": "^0.15.1"
+    "microbundle": "^0.15.1",
+    "@types/file-saver": "^2.0.5"
   }
 }
