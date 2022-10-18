@@ -30,11 +30,11 @@
     "@shadow-drive/sdk": "^3.0.6",
     "crypto-browserify": "^3.12.0",
     "file-saver": "^2.0.5",
+    "@types/file-saver": "^2.0.5",
     "jszip": "^3.10.0",
     "lit-js-sdk": "^1.1.211"
   },
   "devDependencies": {
-    "microbundle": "^0.15.1",
-    "@types/file-saver": "^2.0.5"
+    "microbundle": "^0.15.1"
   }
 }
