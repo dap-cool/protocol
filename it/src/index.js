@@ -1,7 +1,7 @@
 import {AnchorProvider, web3} from "@project-serum/anchor";
 import {
     buildMetaData, decrypt,
-    defaultLitArgs, downloadZip,
+    defaultLitArgs,
     encrypt, getDatumPda, getIncrementPda,
     getProgram,
     getProvider,
@@ -11,6 +11,7 @@ import {
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
+import {saveAs} from "file-saver";
 
 // get phantom
 const phantom = await getPhantom();
@@ -80,6 +81,15 @@ async function download() {
     const decryptedZip = await decrypt(datumPda.url);
     // download zip
     downloadZip(decryptedZip);
+}
+
+export function downloadZip(zip) {
+    // download
+    console.log("download file")
+    zip.generateAsync({type: "blob"})
+        .then(function (blob) {
+            saveAs(blob, "decrypted.zip");
+        });
 }
 
 app.ports.init.subscribe(async function () {
