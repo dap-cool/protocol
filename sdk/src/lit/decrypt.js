@@ -1,7 +1,6 @@
 import {LIT_MAIN_NET, solRpcConditions} from "./util";
 import LitJsSdk from "lit-js-sdk";
 import JSZip from "jszip";
-import {saveAs} from "file-saver";
 
 /**
  * 1) Fetch metadata from url (shadow-drive)
@@ -50,15 +49,6 @@ export async function decrypt(url) {
     const zip = new JSZip();
     zip.files = decrypted;
     return zip
-}
-
-export function downloadZip(zip) {
-    // download
-    console.log("download file")
-    zip.generateAsync({type: "blob"})
-        .then(function (blob) {
-            saveAs(blob, "decrypted.zip");
-        });
 }
 
 export async function getMetaData(url) {
