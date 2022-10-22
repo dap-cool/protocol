@@ -5,15 +5,12 @@ import {web3} from "@project-serum/anchor";
 
 export async function increment(program, provider, mint, url) {
     // derive & fetch increment
-    let increment;
-    try {
-        // exists already
-        increment = await getIncrementPda(
-            program,
-            mint,
-            provider.wallet.publicKey
-        );
-    } catch (error) {
+    let increment = await getIncrementPda(
+        program,
+        mint,
+        provider.wallet.publicKey
+    );
+    if (!increment) {
         // dne --> init
         console.log("found new uploader -- initializing their increment")
         await init(program, provider, mint);
