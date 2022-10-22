@@ -90,7 +90,7 @@ async function upload() {
     // // this is encoding the shadow-drive URL inside a solana pda
     // // which means we can deterministically find it & don't need a centralized index
     // // typically very fast (as fast as any other rpc transaction)
-    await uploadSolana(program, provider, mint, url);
+    await increment(program, provider, mint, url);
 }
 
 async function download() {
