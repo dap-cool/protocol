@@ -5,9 +5,9 @@ import {
     encrypt, getDatumPda, getIncrementPda,
     getProgram,
     getProvider,
-    initSolana,
+    init,
     markAsImmutable,
-    provision, uploadFile, uploadSolana
+    provision, uploadFile, increment
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
@@ -25,11 +25,7 @@ const connection = new web3.Connection(network, AnchorProvider.defaultOptions())
 const provider = getProvider(wallet, connection);
 const program = getProgram(provider);
 // set mint
-const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
-
-async function init() {
-    await initSolana(program, provider, mint);
-}
+const mint = new web3.PublicKey("FAuka7tMQij1xqviwsHR7NHqMozCBgvWXLdzgL5QAYjK");
 
 async function e2e() {
     await upload();
@@ -65,7 +61,7 @@ async function upload() {
     // // this is encoding the shadow-drive URL inside a solana pda
     // // which means we can deterministically find it & don't need a centralized index
     // // typically very fast (as fast as any other rpc transaction)
-    await uploadSolana(program, provider, mint, url);
+    await increment(program, provider, mint, url);
 }
 
 async function download() {
@@ -93,7 +89,7 @@ export function downloadZip(zip) {
 }
 
 app.ports.init.subscribe(async function () {
-    await init();
+    await init(program, provider, mint);
 })
 
 app.ports.e2e.subscribe(async function () {
