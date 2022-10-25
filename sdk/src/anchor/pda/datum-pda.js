@@ -6,7 +6,7 @@ import {web3} from "@project-serum/anchor";
  * @param mint - PublicKey
  * @param uploader - PublicKey
  * @param increment {number}
- * @returns {Promise<{mint, uploader, increment, pda, url}>}
+ * @returns {Promise<{mint, shadow: {account: *, url: string}, uploader, increment, pda}>}
  */
 export async function getDatumPda(program, mint, uploader, increment) {
     let response;
