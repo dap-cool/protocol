@@ -73,13 +73,8 @@
           "type": "u8"
         },
         {
-          "name": "url",
-          "type": {
-            "array": [
-              "u8",
-              78
-            ]
-          }
+          "name": "shadow",
+          "type": "publicKey"
         }
       ]
     },
@@ -158,13 +153,8 @@
             "type": "publicKey"
           },
           {
-            "name": "url",
-            "type": {
-              "array": [
-                "u8",
-                78
-              ]
-            }
+            "name": "shadow",
+            "type": "publicKey"
           },
           {
             "name": "authority",

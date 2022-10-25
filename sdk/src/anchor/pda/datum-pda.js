@@ -16,7 +16,10 @@ export async function getDatumPda(program, mint, uploader, increment) {
             mint: fetched.datum.mint,
             uploader: fetched.datum.authority,
             increment: fetched.datum.seed,
-            url: decodeUrl(fetched.datum.url),
+            shadow: {
+                account: fetched.datum.shadow,
+                url: buildUrl(fetched.datum.shadow)
+            },
             pda: fetched.pda
         }
     } catch (error) {
@@ -57,7 +60,8 @@ async function fetchDatumPda(program, mint, uploader, increment) {
     }
 }
 
-function decodeUrl(encodedUrl) {
-    const textDecoder = new TextDecoder(); // wasteful but avoids potential collisions in global js bundle
-    return textDecoder.decode(new Uint8Array(encodedUrl));
+const URL_PREFIX = "https://shdw-drive.genesysgo.net/";
+
+function buildUrl(shadowAccount) {
+    return (URL_PREFIX + shadowAccount.toString() + "/")
 }

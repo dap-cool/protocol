@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("24PR27toKrLys6EqJmkMp1U2AAykL6vffMFFcZMhXSqL");
+declare_id!("8nwrRp2VZ95HoyLwR1dn4aPBEp4JbnrYMskMkbK7w23f");
 
 #[program]
 pub mod dap_protocol {
@@ -15,7 +15,7 @@ pub mod dap_protocol {
     pub fn publish_assets(
         ctx: Context<PublishAssets>,
         seed: u8,
-        url: [u8; 78],
+        shadow: Pubkey,
     ) -> Result<()> {
         let datum = &mut ctx.accounts.datum;
         let increment_pda = &mut ctx.accounts.increment;
@@ -29,8 +29,8 @@ pub mod dap_protocol {
         increment_pda.increment = increment;
         // mint
         datum.mint = ctx.accounts.mint.key();
-        // url
-        datum.url = url;
+        // shadow account
+        datum.shadow = shadow;
         // authority
         datum.authority = payer.key();
         // datum pda
@@ -163,8 +163,8 @@ pub struct SetNewTariff<'info> {
 pub struct Datum {
     // target mint
     pub mint: Pubkey,
-    // upload url
-    pub url: [u8; 78],
+    // shadow account
+    pub shadow: Pubkey,
     // authority
     pub authority: Pubkey,
     // pda
@@ -172,7 +172,7 @@ pub struct Datum {
 }
 
 impl Datum {
-    const SPACE: usize = 8 + 32 + 78 + 32 + 1 + 1;
+    const SPACE: usize = 8 + 32 + 32 + 32 + 1;
 }
 
 #[account]

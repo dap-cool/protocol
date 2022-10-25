@@ -26,8 +26,7 @@ export async function markAsImmutable(drive, account) {
 
 export async function uploadFile(file, drive, account) {
     console.log("upload file to shdw drive");
-    const url = (await drive.uploadFile(account, file, version)).finalized_locations[0];
-    return url.replace(file.name, "");
+    await drive.uploadFile(account, file, version);
 }
 
 export function buildMetaData(key, litArgs, title) {

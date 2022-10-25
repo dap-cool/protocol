@@ -3,7 +3,7 @@ import {deriveTariffPda} from "./pda/tariff-pda"
 import {BOSS} from "./config";
 import {web3} from "@project-serum/anchor";
 
-export async function increment(program, provider, mint, url) {
+export async function increment(program, provider, mint, shadowAccount) {
     // derive & fetch increment
     let increment = await getIncrementPda(
         program,
@@ -32,12 +32,9 @@ export async function increment(program, provider, mint, url) {
     const pdaTariff = await deriveTariffPda(
         program
     );
-    // encode upload url
-    const textEncoder = new TextEncoder;
-    const encodedPrefix = textEncoder.encode(url);
     // invoke rpc
     await program.methods
-        .publishAssets(newIncrement, Buffer.from(encodedPrefix))
+        .publishAssets(newIncrement, shadowAccount)
         .accounts({
             datum: pdaDatum,
             increment: increment.pda,

@@ -1,5 +1,5 @@
 [programs.localnet]
-dap_protocol = "24PR27toKrLys6EqJmkMp1U2AAykL6vffMFFcZMhXSqL"
+dap_protocol = "8nwrRp2VZ95HoyLwR1dn4aPBEp4JbnrYMskMkbK7w23f"
 
 [registry]
 url = "https://anchor.projectserum.com"
