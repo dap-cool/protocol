@@ -4,7 +4,7 @@ Decentralized Protocol for token-gating files
 
 * [Developers / SDK](#developers--sdk)
     * [End-to-end example](#end-to-end-example)
-* [Principles](#principles-)
+* [Principles](#principles-%EF%B8%8F)
 * [Example Use Case](#example-use-case-)
 * [How It Works](#how-it-works-%EF%B8%8F)
 
@@ -58,7 +58,7 @@ npm i @dap-cool/sdk
 
 ## End-to-end example
 
-* check out our [integration test](./it/src/index.js) to see all the imports, how we're bundling, etc.
+* check out our [integration test](./tests/integration/src/index.js) to see all the imports, how we're bundling, etc.
 
 ```javascript
 async function upload() {

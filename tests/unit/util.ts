@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import {IDL, DapProtocol} from "../target/types/dap_protocol"
+import {IDL, DapProtocol} from "../../target/types/dap_protocol"
 import {Program} from "@project-serum/anchor";
 
 // Configure the client

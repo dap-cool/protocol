@@ -25,7 +25,7 @@ const connection = new web3.Connection(network, AnchorProvider.defaultOptions())
 const provider = getProvider(wallet, connection);
 const program = getProgram(provider);
 // set mint
-const mint = new web3.PublicKey("FAuka7tMQij1xqviwsHR7NHqMozCBgvWXLdzgL5QAYjK");
+const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
 
 async function e2e() {
     await upload();
