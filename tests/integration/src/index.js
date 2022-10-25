@@ -48,7 +48,7 @@ async function upload() {
     // uploaded encrypted file
     // // this is super fast thanks to shadow-drive throughput
     // // comparable to an AWS S3 upload
-    const url = await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
+    await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
     // build metadata
     const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
     // upload metadata
@@ -58,10 +58,10 @@ async function upload() {
     // // technically this optional but we highly recommend it to promote web3 ethos
     await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
-    // // this is encoding the shadow-drive URL inside a solana pda
+    // // this is encoding the shadow-drive public key on-chain via solana program-derived-address
     // // which means we can deterministically find it & don't need a centralized index
     // // typically very fast (as fast as any other rpc transaction)
-    await increment(program, provider, mint, url);
+    await increment(program, provider, mint, provisioned.account);
 }
 
 async function download() {
@@ -74,7 +74,7 @@ async function download() {
     // fetch & decrypt files
     // // super fast thanks to shadow-drive, LIT, and a bunch of WASM
     // // does not charge any gas but does require a message signature (to prove ownership of the mint)
-    const decryptedZip = await decrypt(datumPda.url);
+    const decryptedZip = await decrypt(datumPda.shadow.url);
     // download zip
     downloadZip(decryptedZip);
 }
@@ -89,7 +89,26 @@ export function downloadZip(zip) {
 }
 
 app.ports.init.subscribe(async function () {
-    await init(program, provider, mint);
+    // derive tariff
+    let pdaTariff, _;
+    [pdaTariff, _] = await web3.PublicKey.findProgramAddress(
+        [
+            Buffer.from("tarifftariff")
+        ],
+        program.programId
+    )
+    // invoke init tariff
+    await program.methods
+        .initializeTariff()
+        .accounts({
+            tariff: pdaTariff,
+            payer: provider.wallet.publicKey,
+        }).rpc();
+    // fetch account
+    let tariff = await program.account.tariff.fetch(
+        pdaTariff
+    );
+    console.log(tariff);
 })
 
 app.ports.e2e.subscribe(async function () {
