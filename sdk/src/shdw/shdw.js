@@ -29,6 +29,13 @@ export async function uploadFile(file, drive, account) {
     await drive.uploadFile(account, file, version);
 }
 
+export async function editMetaData(file, drive, account, oldMetaData, newTitle) {
+    console.log("edit metadata on shdw drive");
+    const url = buildUrl(account) + "meta.json";
+    const newMetaData = buildMetaData(oldMetaData.key, oldMetaData.lit, newTitle);
+    await drive.editFile(account, url, newMetaData, version);
+}
+
 export function buildMetaData(key, litArgs, title) {
     const meta = {
         key: key,
@@ -42,4 +49,10 @@ export function buildMetaData(key, litArgs, title) {
         type: "application/json;charset=utf-8"
     });
     return new File([blob], "meta.json");
+}
+
+const URL_PREFIX = "https://shdw-drive.genesysgo.net/";
+
+function buildUrl(shadowAccount) {
+    return (URL_PREFIX + shadowAccount.toString() + "/")
 }
