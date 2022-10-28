@@ -2,12 +2,16 @@ import {web3} from "@project-serum/anchor";
 import {ShdwDrive} from "@shadow-drive/sdk";
 import {version} from "./config";
 
-export async function provision(connection, uploader, file) {
-    // build drive client
+export async function client(connection, uploader) {
     console.log("build shdw client with finalized commitment");
     // build connection with finalized commitment for initial account creation
     const finalizedConnection = new web3.Connection(connection.rpcEndpoint, "finalized");
-    const drive = await new ShdwDrive(finalizedConnection, uploader).init();
+    return await new ShdwDrive(finalizedConnection, uploader).init();
+}
+
+export async function provision(connection, uploader, file) {
+    // build drive client
+    const drive = await client(connection, uploader);
     // create storage account
     console.log("create shdw storage account");
     const size = (((file.size / 1000000) + 2).toString()).split(".")[0] + "MB";
