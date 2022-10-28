@@ -5,9 +5,9 @@ import {
     encrypt, getDatumPda, getIncrementPda,
     getProgram,
     getProvider,
-    init,
     markAsImmutable,
-    provision, uploadFile, increment
+    provision, uploadFile, increment,
+    client, editMetaData, getMetaData
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
@@ -28,11 +28,21 @@ const program = getProgram(provider);
 const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
 
 async function e2e() {
-    await upload();
+    await uploadMutable();
+    // edit metadata before marking as immutable
+    const drive = await client(connection, provider.wallet);
+    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
+    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    const oldMetadata = await getMetaData(datumPda.shadow.url);
+    await editMetaData(null, drive, datumPda.shadow.account, oldMetadata, "new-title");
+    // mark as immutable
+    // // this takes about 15seconds again to mark the storage as immutable
+    // // technically this optional but we highly recommend it to promote web3 ethos
+    await markAsImmutable(drive, datumPda.shadow.account);
     await download();
 }
 
-async function upload() {
+async function uploadMutable() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
@@ -53,10 +63,6 @@ async function upload() {
     const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
     // upload metadata
     await uploadFile(metadata, provisioned.drive, provisioned.account);
-    // mark as immutable
-    // // this takes about 15seconds again to mark the storage as immutable
-    // // technically this optional but we highly recommend it to promote web3 ethos
-    await markAsImmutable(provisioned.drive, provisioned.account);
     // publish url to solana
     // // this is encoding the shadow-drive public key on-chain via solana program-derived-address
     // // which means we can deterministically find it & don't need a centralized index
