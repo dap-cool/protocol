@@ -3,17 +3,15 @@ import LitJsSdk from "lit-js-sdk";
 import JSZip from "jszip";
 
 /**
- * 1) Fetch metadata from url (shadow-drive)
- * 2) Fetch encrypted .zip file from url (shadow-drive)
- * 3) with LIT access-control from metadata fetch the decryption key from LIT Network
- * 4) decrypt
+ * 1) Fetch encrypted .zip file from url (shadow-drive)
+ * 2) with LIT access-control from metadata fetch the decryption key from LIT Network
+ * 3) decrypt
  *
  * @param url {string} - sitting on-chain pointing to shadow-drive
- * @returns {Promise<this>} - decrypted .zip file
+ * @param metadata - metadata sitting on shadow-drive behind url
+ * @returns {Promise<JSZip>} - decrypted .zip file
  */
-export async function decrypt(url) {
-    // fetch meta data
-    const metaData = await getMetaData(url);
+export async function decrypt(url, metadata) {
     // build client
     const client = new LitJsSdk.LitNodeClient();
     // await for connection
@@ -27,10 +25,9 @@ export async function decrypt(url) {
     // Note, below we convert the encryptedSymmetricKey from a UInt8Array to a hex string.
     // This is because we obtained the encryptedSymmetricKey from "saveEncryptionKey" which returns a UInt8Array.
     // But the getEncryptionKey method expects a hex string.
-    const uintArray = new Uint8Array(Object.values(metaData.key));
-    const encryptedHexKey = LitJsSdk.uint8arrayToString(uintArray, "base16");
+    const encryptedHexKey = LitJsSdk.uint8arrayToString(metadata.key, "base16");
     const retrievedSymmetricKey = await client.getEncryptionKey({
-        solRpcConditions: solRpcConditions(metaData.lit),
+        solRpcConditions: solRpcConditions(metadata.lit),
         toDecrypt: encryptedHexKey,
         chain: LIT_MAIN_NET,
         authSig
@@ -50,10 +47,3 @@ export async function decrypt(url) {
     zip.files = decrypted;
     return zip
 }
-
-export async function getMetaData(url) {
-    console.log("fetching meta-data");
-    return await fetch(url + "meta.json")
-        .then(response => response.json());
-}
-

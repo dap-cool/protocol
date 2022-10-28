@@ -1,13 +1,28 @@
+import {LitArgs} from "../metadata";
+
 export const LIT_MAIN_NET = "solana" // mainnet only because of shadow-drive
+
+export interface SolRpcConditions {
+    method: string
+    params: string[]
+    pdaParams: any
+    pdaInterface: any
+    pdaKey: any
+    chain: string
+    returnValueTest: {
+        key: string
+        comparator: string
+        value: string
+    }
+}
 
 /**
  * Build the Sol-RPC-Conditions for en/decrypting via LIT Network.
  *
- * @param litArgs - typically built with @defaultArgs
- * @param chain {string} - LIT_MAIN_NET or LIT_DEV_NET
- * @returns {[{pdaParams: *[], chain, method, pdaInterface: {offset: number, fields: {}}, returnValueTest: {comparator, value, key}, params: *[], pdaKey: string}]}
+ * @param litArgs {LitArgs} - typically built with @defaultArgs
+ * @returns {SolRpcConditions[]}
  */
-export function solRpcConditions(litArgs) {
+export function solRpcConditions(litArgs: LitArgs): SolRpcConditions[] {
     return [
         {
             method: litArgs.method,
@@ -29,9 +44,9 @@ export function solRpcConditions(litArgs) {
  * Build default args for LIT Network to en/decrypt with Fungible Tokens as the access-control mechanism.
  *
  * @param mint {string}
- * @returns {{mint, method: string, returnValueTest: {comparator: string, value: string, key: string}}}
+ * @returns {LitArgs}
  */
-export function defaultLitArgs(mint) {
+export function defaultLitArgs(mint: string): LitArgs {
     return {
         method: "balanceOfToken",
         mint: mint,

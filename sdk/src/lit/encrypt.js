@@ -6,7 +6,7 @@ import {LIT_MAIN_NET, solRpcConditions} from "./util";
  *
  * @param files {FileList}
  * @param litArgs - build default with ./util
- * @returns {Promise<{file: File, encryptedSymmetricKey: *}>}
+ * @returns {Promise<{key: Uint8Array, file: File}>}
  */
 export async function encrypt(files, litArgs) {
     // build client
