@@ -33,6 +33,20 @@ export async function getIncrementPda(
     return response
 }
 
+export async function getIncrementPdaUnsafe(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    uploader: PublicKey
+): Promise<Increment> {
+    const fetched = await fetchIncrementPda(program, mint, uploader);
+    return {
+        mint: mint,
+        uploader: uploader,
+        increment: fetched.increment.increment,
+        pda: fetched.pda
+    }
+}
+
 export async function deriveIncrementPda(
     program: Program<DapProtocol>,
     mint: PublicKey,

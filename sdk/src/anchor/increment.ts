@@ -1,4 +1,4 @@
-import {getIncrementPda, deriveDatumPda, deriveIncrementPda, Increment} from "./pda";
+import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda, getIncrementPdaUnsafe} from "./pda";
 import {deriveTariffPda} from "./pda/tariff-pda"
 import {BOSS} from "./config";
 import {AnchorProvider, Program} from "@project-serum/anchor";
@@ -12,22 +12,25 @@ export async function increment(
     shadowAccount: PublicKey
 ) {
     // derive & fetch increment
-    let increment: Increment | null = await getIncrementPda(
+    const maybeIncrement: Increment | null = await getIncrementPda(
         program,
         mint,
         provider.wallet.publicKey
     );
-    if (!increment) {
+    let increment: Increment;
+    if (maybeIncrement) {
+        increment = maybeIncrement;
+    } else {
         // dne --> init
         console.log("found new uploader -- initializing their increment")
         await init(program, provider, mint);
-        increment = await getIncrementPda(
+        increment = await getIncrementPdaUnsafe(
             program,
             mint,
             provider.wallet.publicKey
         );
     }
-    const newIncrement: number = increment?.increment + 1;
+    const newIncrement: number = increment.increment + 1;
     // derive pda datum
     const pdaDatum = await deriveDatumPda(
         program,
@@ -39,12 +42,14 @@ export async function increment(
     const pdaTariff = await deriveTariffPda(
         program
     );
+    const seed: any = newIncrement;
+    const shadow: any = shadowAccount;
     // invoke rpc
-    await program.methods // TODO
-        .publishAssets(newIncrement?, shadowAccount)
+    await program.methods
+        .publishAssets(seed, shadow)
         .accounts({
             datum: pdaDatum,
-            increment: increment?.pda,
+            increment: increment.pda,
             mint: mint,
             tariff: pdaTariff,
             tariffAuthority: BOSS,
