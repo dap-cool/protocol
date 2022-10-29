@@ -1,6 +1,6 @@
 import {AnchorProvider, web3} from "@project-serum/anchor";
 import {
-    buildMetaData, decrypt,
+    encodeMetadata, decrypt,
     defaultLitArgs,
     encrypt, getDatumPda, getIncrementPda,
     getProgram,
@@ -29,16 +29,7 @@ const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
 
 async function e2e() {
     await uploadMutable();
-    // edit metadata before marking as immutable
-    const drive = await client(connection, provider.wallet);
-    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
-    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
-    const oldMetadata = await getMetaData(datumPda.shadow.url);
-    await editMetaData(null, drive, datumPda.shadow.account, oldMetadata, "new-title");
-    // mark as immutable
-    // // this takes about 15seconds again to mark the storage as immutable
-    // // technically this optional but we highly recommend it to promote web3 ethos
-    await markAsImmutable(drive, datumPda.shadow.account);
+    await editMetadata();
     await download();
 }
 
@@ -60,14 +51,34 @@ async function uploadMutable() {
     // // comparable to an AWS S3 upload
     await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
     // build metadata
-    const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
+    const metadata = {key: encrypted.key, lit: litArgs, title: "e2e-demo"}
+    const encodedMetadata = encodeMetadata(metadata);
     // upload metadata
-    await uploadFile(metadata, provisioned.drive, provisioned.account);
+    await uploadFile(encodedMetadata, provisioned.drive, provisioned.account);
     // publish url to solana
     // // this is encoding the shadow-drive public key on-chain via solana program-derived-address
     // // which means we can deterministically find it & don't need a centralized index
     // // typically very fast (as fast as any other rpc transaction)
     await increment(program, provider, mint, provisioned.account);
+}
+
+async function editMetadata() {
+    // edit metadata before marking as immutable
+    // // create new shadow client
+    const drive = await client(connection, provider.wallet);
+    // // deterministically find latest upload
+    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
+    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    // // fetch existing metadata from latest uploader
+    // // has stuff for decryption that we need to copy to new metadata
+    const oldMetadata = await getMetaData(datumPda.shadow.url);
+    // // this is super fast because shadow-drive is already provisioned
+    // // throughput is comparable to an AWS S3 upload
+    await editMetaData(drive, datumPda.shadow.account, oldMetadata, "new-title");
+    // mark as immutable
+    // // this takes about 15seconds again to mark the storage as immutable
+    // // technically this optional but we highly recommend it to promote web3 ethos
+    await markAsImmutable(drive, datumPda.shadow.account);
 }
 
 async function download() {
@@ -77,10 +88,12 @@ async function download() {
     // get datum (of latest upload)
     // // deterministically find the URL of the latest upload
     const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    // fetch metadata (of latest upload) from shadow-drive
+    const metadata = await getMetaData(datumPda.shadow.url);
     // fetch & decrypt files
     // // super fast thanks to shadow-drive, LIT, and a bunch of WASM
     // // does not charge any gas but does require a message signature (to prove ownership of the mint)
-    const decryptedZip = await decrypt(datumPda.shadow.url);
+    const decryptedZip = await decrypt(datumPda.shadow.url, metadata);
     // download zip
     downloadZip(decryptedZip);
 }
