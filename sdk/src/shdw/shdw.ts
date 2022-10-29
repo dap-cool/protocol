@@ -1,20 +1,20 @@
-import {web3} from "@project-serum/anchor";
 import {ShdwDrive} from "@shadow-drive/sdk";
 import {version} from "./config";
 import {Metadata, encodeMetadata} from "../metadata";
+import {Connection, PublicKey} from "@solana/web3.js";
 
-export async function client(connection: web3.Connection, uploader: any): Promise<ShdwDrive> {
+export async function client(connection: any, uploader: any): Promise<ShdwDrive> {
     console.log("build shdw client with finalized commitment");
     // build connection with finalized commitment for initial account creation
-    const finalizedConnection = new web3.Connection(connection.rpcEndpoint, "finalized");
+    const finalizedConnection = new Connection(connection.rpcEndpoint, "finalized");
     return await new ShdwDrive(finalizedConnection, uploader).init();
 }
 
 export async function provision(
-    connection: web3.Connection,
+    connection: any,
     uploader: any,
     file: File
-): Promise<{ drive: ShdwDrive, account: web3.PublicKey }> {
+): Promise<{ drive: ShdwDrive, account: PublicKey }> {
     // build drive client
     const drive = await client(connection, uploader);
     // create storage account
@@ -22,25 +22,25 @@ export async function provision(
     const size = (((file.size / 1000000) + 2).toString()).split(".")[0] + "MB";
     console.log(size);
     const createStorageResponse = await drive.createStorageAccount("dap-cool", size, version)
-    const account = new web3.PublicKey(createStorageResponse.shdw_bucket);
+    const account = new PublicKey(createStorageResponse.shdw_bucket);
     return {drive, account}
 }
 
-export async function markAsImmutable(drive: ShdwDrive, account: web3.PublicKey): Promise<void> {
+export async function markAsImmutable(drive: ShdwDrive, account: PublicKey): Promise<void> {
     console.log("mark account as immutable");
     // time out for 1 second to give RPC time to resolve account
     await new Promise(r => setTimeout(r, 1000));
     await drive.makeStorageImmutable(account, version);
 }
 
-export async function uploadFile(file: File, drive: ShdwDrive, account: web3.PublicKey): Promise<void> {
+export async function uploadFile(file: File, drive: ShdwDrive, account: PublicKey): Promise<void> {
     console.log("upload file to shdw drive");
     await drive.uploadFile(account, file, version);
 }
 
 export async function editMetaData(
     drive: ShdwDrive,
-    account: web3.PublicKey,
+    account: PublicKey,
     oldMetaData: Metadata,
     newTitle: string
 ): Promise<void> {
@@ -57,6 +57,6 @@ export async function editMetaData(
 
 const URL_PREFIX = "https://shdw-drive.genesysgo.net/";
 
-function buildUrl(shadowAccount: web3.PublicKey) {
+function buildUrl(shadowAccount: PublicKey) {
     return (URL_PREFIX + shadowAccount.toString() + "/")
 }
