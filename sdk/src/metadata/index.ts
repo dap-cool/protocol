@@ -29,7 +29,6 @@ export async function getMetaData(url): Promise<Metadata> {
     const fetched  = await fetch(url + "meta.json")
         .then(response => response.json());
     const keys = (fetched.key as  { [s: string]: any })
-    console.log(keys);
     return {
         key: new Uint8Array(Object.values(keys)),
         lit: fetched.lit,
