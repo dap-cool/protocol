@@ -1,15 +1,26 @@
-import {web3} from "@project-serum/anchor";
+import {Program, Address} from "@project-serum/anchor";
+import {PublicKey} from "@solana/web3.js";
+import {DapProtocol} from "../idl";
 
-/**
- * Get Datum PDA
- * @param program - Program
- * @param mint - PublicKey
- * @param uploader - PublicKey
- * @param increment {number}
- * @returns {Promise<{mint, shadow: {account: *, url: string}, uploader, increment, pda}>}
- */
-export async function getDatumPda(program, mint, uploader, increment) {
-    let response;
+
+export interface Datum {
+    mint: PublicKey
+    uploader: PublicKey
+    increment: number
+    shadow: {
+        account: PublicKey,
+        url: string
+    }
+    pda: Address
+}
+
+export async function getDatumPda(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    uploader: PublicKey,
+    increment: number
+): Promise<Datum | null> {
+    let response: Datum | null;
     try {
         const fetched = await fetchDatumPda(program, mint, uploader, increment);
         response = {
@@ -33,10 +44,15 @@ export async function getDatumPda(program, mint, uploader, increment) {
     return response
 }
 
-export async function deriveDatumPda(program, mint, uploader, increment) {
+export async function deriveDatumPda(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    uploader: PublicKey,
+    increment: number
+): Promise<Address> {
     // derive pda
-    let pda, _;
-    [pda, _] = await web3.PublicKey.findProgramAddress(
+    let pda: Address, _;
+    [pda, _] = await PublicKey.findProgramAddress(
         [
             mint.toBuffer(),
             uploader.toBuffer(),
@@ -47,11 +63,21 @@ export async function deriveDatumPda(program, mint, uploader, increment) {
     return pda
 }
 
-async function fetchDatumPda(program, mint, uploader, increment) {
+async function fetchDatumPda(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    uploader: PublicKey,
+    increment: number
+): Promise<{ pda: Address, datum: any }> {
     // derive pda
-    const pda = await deriveDatumPda(program, mint, uploader, increment);
+    const pda: Address = await deriveDatumPda(
+        program,
+        mint,
+        uploader,
+        increment
+    );
     // fetch pda
-    const datum = await program.account.datum.fetch(
+    const datum: any = await program.account.datum.fetch(
         pda
     );
     return {
