@@ -1,6 +1,6 @@
 {
   "name": "@dap-cool/sdk",
-  "version": "0.2.0-RC-8b02231",
+  "version": "0.2.0-RC-7b31271",
   "type": "module",
   "source": "./src/index.js",
   "exports": {
