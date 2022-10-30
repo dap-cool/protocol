@@ -1,4 +1,4 @@
-import {ShdwDrive} from "@shadow-drive/sdk";
+import {ShadowFile, ShdwDrive} from "@shadow-drive/sdk";
 import {version} from "./config";
 import {Metadata, encodeMetadata} from "../metadata";
 import {Connection, PublicKey} from "@solana/web3.js";
@@ -31,6 +31,20 @@ export async function markAsImmutable(drive: ShdwDrive, account: PublicKey): Pro
     // time out for 1 second to give RPC time to resolve account
     await new Promise(r => setTimeout(r, 1000));
     await drive.makeStorageImmutable(account, version);
+}
+
+export async function uploadMultipleFiles(files: File[], drive: ShdwDrive, account: PublicKey): Promise<void> {
+    console.log("uploading multiple files to shdw drive");
+    const shadowFiles: ShadowFile[] = await Promise.all(
+        files.map(async (file) => {
+            const arrayBuffer = await file.arrayBuffer();
+            return {
+                name: file.name,
+                file: Buffer.from(arrayBuffer)
+            } as ShadowFile
+        })
+    );
+    await drive.uploadMultipleFiles(account, shadowFiles)
 }
 
 export async function uploadFile(file: File, drive: ShdwDrive, account: PublicKey): Promise<void> {
