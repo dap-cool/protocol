@@ -47,7 +47,12 @@ async function uploadMutable() {
     // // these methods are intentionally seperated to provide opportunity to notify progress
     const provisioned = await provision(connection, provider.wallet, encrypted.file);
     // build metadata
-    const metadata = {key: encrypted.key, lit: litArgs, title: "e2e-demo"}
+    const metadata = {
+        key: encrypted.key,
+        lit: litArgs,
+        title: "e2e-demo",
+        timestamp: Date.now()
+    }
     const encodedMetadata = encodeMetadata(metadata);
     // uploaded encrypted file & metadata
     // // this is super fast thanks to shadow-drive throughput
