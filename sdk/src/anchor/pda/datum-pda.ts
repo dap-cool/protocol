@@ -2,7 +2,6 @@ import {Program, Address} from "@project-serum/anchor";
 import {PublicKey} from "@solana/web3.js";
 import {DapProtocol} from "../idl";
 
-
 export interface Datum {
     mint: PublicKey
     uploader: PublicKey
@@ -19,29 +18,18 @@ export async function getDatumPda(
     mint: PublicKey,
     uploader: PublicKey,
     increment: number
-): Promise<Datum | null> {
-    let response: Datum | null;
-    try {
-        const fetched = await fetchDatumPda(program, mint, uploader, increment);
-        response = {
-            mint: fetched.datum.mint,
-            uploader: fetched.datum.authority,
-            increment: fetched.datum.seed,
-            shadow: {
-                account: fetched.datum.shadow,
-                url: buildUrl(fetched.datum.shadow)
-            },
-            pda: fetched.pda
-        }
-    } catch (error) {
-        console.log(error);
-        let msg = "could not find pda-datum with uploader: {" + uploader.toString();
-        msg = msg + "} " + "and mint: {" + mint.toString();
-        msg = msg + "} " + "and increment: {" + increment.toString() + "}";
-        console.log(msg);
-        response = null;
+): Promise<Datum> {
+    const fetched = await fetchDatumPda(program, mint, uploader, increment);
+    return {
+        mint: fetched.datum.mint,
+        uploader: fetched.datum.authority,
+        increment: fetched.datum.seed,
+        shadow: {
+            account: fetched.datum.shadow,
+            url: buildUrl(fetched.datum.shadow)
+        },
+        pda: fetched.pda
     }
-    return response
 }
 
 export async function deriveDatumPda(
