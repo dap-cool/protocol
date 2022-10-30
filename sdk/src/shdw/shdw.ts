@@ -35,18 +35,7 @@ export async function markAsImmutable(drive: ShdwDrive, account: PublicKey): Pro
 
 export async function uploadMultipleFiles(files: File[], drive: ShdwDrive, account: PublicKey): Promise<void> {
     console.log("uploading multiple files to shdw drive");
-    const shadowFiles: ShadowFile[] = await Promise.all(
-        files.map(async (file) => {
-            const arrayBuffer = await file.arrayBuffer();
-            console.log(arrayBuffer);
-            return {
-                name: file.name,
-                file: Buffer.from(arrayBuffer)
-            } as ShadowFile
-        })
-    );
-    console.log(shadowFiles)
-    await drive.uploadMultipleFiles(account, shadowFiles)
+    await drive.uploadMultipleFiles(account, files as any)
 }
 
 export async function uploadFile(file: File, drive: ShdwDrive, account: PublicKey): Promise<void> {
