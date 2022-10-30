@@ -1,6 +1,6 @@
 import {PublicKey, SystemProgram} from "@solana/web3.js";
-import {AnchorProvider, Program} from "@project-serum/anchor";
-import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda, getIncrementPdaUnsafe} from "../pda";
+import {Address, AnchorProvider, Program} from "@project-serum/anchor";
+import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda} from "../pda";
 import {deriveTariffPda} from "../pda/tariff-pda"
 import {BOSS} from "../config";
 import {DapProtocol} from "../idl";
@@ -23,12 +23,13 @@ export async function increment(
     } else {
         // dne --> init
         console.log("found new uploader -- initializing their increment")
-        await init(program, provider, mint);
-        increment = await getIncrementPdaUnsafe(
-            program,
-            mint,
-            provider.wallet.publicKey
-        );
+        const pda = await init(program, provider, mint);
+        increment = {
+            mint: mint,
+            uploader: provider.wallet.publicKey,
+            increment: 0,
+            pda: pda
+        }
     }
     const newIncrement: number = increment.increment + 1;
     // derive pda datum
@@ -62,7 +63,7 @@ export async function init(
     program: Program<DapProtocol>,
     provider: AnchorProvider,
     mint: PublicKey
-): Promise<void> {
+): Promise<Address> {
     // derive increment pda
     const incrementPda = await deriveIncrementPda(
         program,
@@ -78,4 +79,5 @@ export async function init(
             payer: provider.wallet.publicKey,
             systemProgram: SystemProgram.programId
         }).rpc();
+    return incrementPda
 }
