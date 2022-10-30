@@ -6,7 +6,7 @@ import {
     getProgram,
     getProvider,
     markAsImmutable,
-    provision, uploadFile, increment,
+    provision, uploadMultipleFiles, increment,
     client, editMetaData, getMetaData
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
@@ -46,15 +46,17 @@ async function uploadMutable() {
     // // you'll want to notify your app what is happening
     // // these methods are intentionally seperated to provide opportunity to notify progress
     const provisioned = await provision(connection, provider.wallet, encrypted.file);
-    // uploaded encrypted file
-    // // this is super fast thanks to shadow-drive throughput
-    // // comparable to an AWS S3 upload
-    await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
     // build metadata
     const metadata = {key: encrypted.key, lit: litArgs, title: "e2e-demo"}
     const encodedMetadata = encodeMetadata(metadata);
-    // upload metadata
-    await uploadFile(encodedMetadata, provisioned.drive, provisioned.account);
+    // uploaded encrypted file & metadata
+    // // this is super fast thanks to shadow-drive throughput
+    // // comparable to an AWS S3 upload
+    await uploadMultipleFiles(
+        [encrypted.file, encodedMetadata],
+        provisioned.drive,
+        provisioned.account
+    );
     // publish url to solana
     // // this is encoding the shadow-drive public key on-chain via solana program-derived-address
     // // which means we can deterministically find it & don't need a centralized index
