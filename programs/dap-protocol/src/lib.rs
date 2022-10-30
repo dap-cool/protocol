@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("8nwrRp2VZ95HoyLwR1dn4aPBEp4JbnrYMskMkbK7w23f");
+declare_id!("FHigg3vfJmJMcypFbYrk9rZubV6Ap9nbLJPGnDFyFJ3c");
 
 #[program]
 pub mod dap_protocol {

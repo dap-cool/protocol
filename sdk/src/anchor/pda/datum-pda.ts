@@ -5,7 +5,8 @@ import {DapProtocol} from "../idl";
 export interface Datum {
     mint: PublicKey
     uploader: PublicKey
-    increment: number
+    index: number
+    filtered: boolean
     shadow: {
         account: PublicKey,
         url: string
@@ -17,13 +18,14 @@ export async function getDatumPda(
     program: Program<DapProtocol>,
     mint: PublicKey,
     uploader: PublicKey,
-    increment: number
+    index: number
 ): Promise<Datum> {
-    const fetched = await fetchDatumPda(program, mint, uploader, increment);
+    const fetched = await fetchDatumPda(program, mint, uploader, index);
     return {
         mint: fetched.datum.mint,
         uploader: fetched.datum.authority,
-        increment: fetched.datum.seed,
+        index: index,
+        filtered: fetched.datum.filtered,
         shadow: {
             account: fetched.datum.shadow,
             url: buildUrl(fetched.datum.shadow)
@@ -36,7 +38,7 @@ export async function deriveDatumPda(
     program: Program<DapProtocol>,
     mint: PublicKey,
     uploader: PublicKey,
-    increment: number
+    index: number
 ): Promise<Address> {
     // derive pda
     let pda: Address, _;
@@ -44,7 +46,7 @@ export async function deriveDatumPda(
         [
             mint.toBuffer(),
             uploader.toBuffer(),
-            Buffer.from([increment])
+            Buffer.from([index])
         ],
         program.programId
     );
@@ -55,14 +57,14 @@ async function fetchDatumPda(
     program: Program<DapProtocol>,
     mint: PublicKey,
     uploader: PublicKey,
-    increment: number
+    index: number
 ): Promise<{ pda: Address, datum: any }> {
     // derive pda
     const pda: Address = await deriveDatumPda(
         program,
         mint,
         uploader,
-        increment
+        index
     );
     // fetch pda
     const datum: any = await program.account.datum.fetch(

@@ -1,16 +1,16 @@
-import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda, getIncrementPdaUnsafe} from "./pda";
-import {deriveTariffPda} from "./pda/tariff-pda"
-import {BOSS} from "./config";
-import {AnchorProvider, Program} from "@project-serum/anchor";
-import {DapProtocol} from "./idl";
 import {PublicKey, SystemProgram} from "@solana/web3.js";
+import {AnchorProvider, Program} from "@project-serum/anchor";
+import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda, getIncrementPdaUnsafe} from "../pda";
+import {deriveTariffPda} from "../pda/tariff-pda"
+import {BOSS} from "../config";
+import {DapProtocol} from "../idl";
 
 export async function increment(
     program: Program<DapProtocol>,
     provider: AnchorProvider,
     mint: PublicKey,
     shadowAccount: PublicKey
-) {
+): Promise<void> {
     // derive & fetch increment
     const maybeIncrement: Increment | null = await getIncrementPda(
         program,
@@ -42,11 +42,11 @@ export async function increment(
     const pdaTariff = await deriveTariffPda(
         program
     );
-    const seed: any = newIncrement;
+    const index: any = newIncrement;
     const shadow: any = shadowAccount;
     // invoke rpc
     await program.methods
-        .publishAssets(seed, shadow)
+        .publishAsset(index, shadow)
         .accounts({
             datum: pdaDatum,
             increment: increment.pda,

@@ -29,7 +29,7 @@ export type DapProtocol = {
       "args": []
     },
     {
-      "name": "publishAssets",
+      "name": "publishAsset",
       "accounts": [
         {
           "name": "datum",
@@ -69,12 +69,38 @@ export type DapProtocol = {
       ],
       "args": [
         {
-          "name": "seed",
+          "name": "index",
           "type": "u8"
         },
         {
           "name": "shadow",
           "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "filterAsset",
+      "accounts": [
+        {
+          "name": "datum",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
         }
       ]
     },
@@ -157,12 +183,8 @@ export type DapProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "seed",
-            "type": "u8"
+            "name": "filtered",
+            "type": "bool"
           }
         ]
       }
@@ -236,7 +258,7 @@ export const IDL: DapProtocol = {
       "args": []
     },
     {
-      "name": "publishAssets",
+      "name": "publishAsset",
       "accounts": [
         {
           "name": "datum",
@@ -276,12 +298,38 @@ export const IDL: DapProtocol = {
       ],
       "args": [
         {
-          "name": "seed",
+          "name": "index",
           "type": "u8"
         },
         {
           "name": "shadow",
           "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "filterAsset",
+      "accounts": [
+        {
+          "name": "datum",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
         }
       ]
     },
@@ -364,12 +412,8 @@ export const IDL: DapProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "seed",
-            "type": "u8"
+            "name": "filtered",
+            "type": "bool"
           }
         ]
       }

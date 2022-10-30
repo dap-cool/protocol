@@ -1,3 +1,3 @@
 export * from "./pda"
-export * from "./increment"
+export * from "./methods"
 export * from "./util"
