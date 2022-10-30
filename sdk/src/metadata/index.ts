@@ -12,6 +12,7 @@ export interface Metadata {
     key: Uint8Array
     lit: LitArgs
     title: string
+    timestamp: number
 }
 
 export function encodeMetadata(metadata: Metadata): File {
@@ -32,6 +33,7 @@ export async function getMetaData(url): Promise<Metadata> {
     return {
         key: new Uint8Array(Object.values(keys)),
         lit: fetched.lit,
-        title: fetched.title
+        title: fetched.title,
+        timestamp: fetched.timestamp
     }
 }

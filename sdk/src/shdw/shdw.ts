@@ -1,4 +1,4 @@
-import {ShadowFile, ShdwDrive} from "@shadow-drive/sdk";
+import {ShdwDrive} from "@shadow-drive/sdk";
 import {version} from "./config";
 import {Metadata, encodeMetadata} from "../metadata";
 import {Connection, PublicKey} from "@solana/web3.js";
@@ -51,12 +51,9 @@ export async function editMetaData(
 ): Promise<void> {
     console.log("edit metadata on shdw drive");
     const url = buildUrl(account) + "meta.json";
-    const newMetadata = {
-        key: oldMetaData.key,
-        lit: oldMetaData.lit,
-        title: newTitle
-    }
-    const encoded = encodeMetadata(newMetadata);
+    oldMetaData.title = newTitle;
+    oldMetaData.timestamp = Date.now();
+    const encoded = encodeMetadata(oldMetaData);
     await drive.editFile(account, url, encoded, version);
 }
 
