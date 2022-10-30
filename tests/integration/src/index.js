@@ -7,7 +7,7 @@ import {
     getProvider,
     markAsImmutable,
     provision, uploadMultipleFiles, increment,
-    client, editMetaData, getMetaData
+    buildClient, editMetaData, getMetaData, filter
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
@@ -67,7 +67,7 @@ async function uploadMutable() {
 async function editMetadata() {
     // edit metadata before marking as immutable
     // // create new shadow client
-    const drive = await client(connection, provider.wallet);
+    const drive = await buildClient(connection, provider.wallet);
     // // deterministically find latest upload
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
@@ -89,7 +89,7 @@ async function download() {
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     // get datum (of latest upload)
     // // deterministically find the URL of the latest upload
-    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    let datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
     // fetch metadata (of latest upload) from shadow-drive
     const metadata = await getMetaData(datumPda.shadow.url);
     // fetch & decrypt files
@@ -98,6 +98,13 @@ async function download() {
     const decryptedZip = await decrypt(datumPda.shadow.url, metadata);
     // download zip
     downloadZip(decryptedZip);
+    // mark upload as filtered
+    // // this provides a method for UIs to not render certain uploads
+    // // if an uploader chooses without actually removing the upload from the blockchain
+    // // so we guarantee legacy users of the upload can still access the files
+    await filter(program, provider, mint, incrementPda.increment);
+    datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    console.log(datumPda);
 }
 
 export function downloadZip(zip) {

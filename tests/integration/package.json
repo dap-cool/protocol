@@ -13,7 +13,7 @@
     "rollup-plugin-node-polyfills": "^0.2.1"
   },
   "dependencies": {
-    "@dap-cool/sdk": "^0.2.0-RC-5112272",
+    "@dap-cool/sdk": "^0.3.0-RC-c5ba5b3",
     "@project-serum/anchor": "^0.24.2",
     "file-saver": "^2.0.5"
   }
