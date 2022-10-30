@@ -12,9 +12,9 @@ pub mod dap_protocol {
         Ok(())
     }
 
-    pub fn publish_assets(
-        ctx: Context<PublishAssets>,
-        seed: u8,
+    pub fn publish_asset(
+        ctx: Context<PublishAsset>,
+        index: u8,
         shadow: Pubkey,
     ) -> Result<()> {
         let datum = &mut ctx.accounts.datum;
@@ -25,18 +25,26 @@ pub mod dap_protocol {
         // increment
         let increment = increment_pda.increment + 1;
         // assert that datum is produced in sequence
-        assert_eq!(increment, seed);
+        assert_eq!(increment, index);
         increment_pda.increment = increment;
         // mint
         datum.mint = ctx.accounts.mint.key();
         // shadow account
         datum.shadow = shadow;
-        // authority
-        datum.authority = payer.key();
-        // datum pda
-        datum.seed = seed;
+        // filtered
+        datum.filtered = false;
         // tariff
         Tariff::pay_tariff(tariff, tariff_authority, payer)
+    }
+
+    pub fn filter_asset(
+        ctx: Context<FilterAsset>,
+        _index: u8,
+    ) -> Result<()> {
+        let datum = &mut ctx.accounts.datum;
+        // filter
+        datum.filtered = true;
+        Ok(())
     }
 
     pub fn initialize_tariff(
@@ -94,10 +102,10 @@ pub struct InitializeIncrement<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(seed: u8)]
-pub struct PublishAssets<'info> {
+#[instruction(index: u8)]
+pub struct PublishAsset<'info> {
     #[account(init,
-    seeds = [mint.key().as_ref(), payer.key().as_ref(), & [seed]], bump,
+    seeds = [mint.key().as_ref(), payer.key().as_ref(), & [index]], bump,
     payer = payer,
     space = Datum::SPACE
     )]
@@ -119,6 +127,23 @@ pub struct PublishAssets<'info> {
     pub tariff_authority: SystemAccount<'info>,
     // system program
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(index: u8)]
+pub struct FilterAsset<'info> {
+    #[account(mut,
+    seeds = [mint.key().as_ref(), authority.key().as_ref(), & [index]],
+    bump
+    )]
+    pub datum: Account<'info, Datum>,
+    #[account()]
+    /// CHECK: excluding check for spl-mint type
+    /// provides run-time benefits in avoiding additional
+    /// deserialization & binary dependencies
+    pub mint: UncheckedAccount<'info>,
+    #[account()]
+    pub authority: Signer<'info>,
 }
 
 #[derive(Accounts)]
@@ -165,14 +190,12 @@ pub struct Datum {
     pub mint: Pubkey,
     // shadow account
     pub shadow: Pubkey,
-    // authority
-    pub authority: Pubkey,
-    // pda
-    pub seed: u8,
+    // filtered
+    pub filtered: bool,
 }
 
 impl Datum {
-    const SPACE: usize = 8 + 32 + 32 + 32 + 1;
+    const SPACE: usize = 8 + 32 + 32 + 1;
 }
 
 #[account]

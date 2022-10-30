@@ -5,6 +5,7 @@ import {
     program,
     createUser, programForUser
 } from "./util.ts";
+import {Keypair} from "@solana/web3.js";
 
 describe("dap-protocol", () => {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +16,7 @@ describe("dap-protocol", () => {
         // instantiate mint
         const mint = await createUser();
         // create assets
-        const url = Buffer.from("u".repeat(78));
+        const shadowAccount = Keypair.generate().publicKey;
         // derive tariff
         let pdaTariff, _;
         [pdaTariff, _] = await anchor.web3.PublicKey.findProgramAddress(
@@ -66,7 +67,7 @@ describe("dap-protocol", () => {
             }).rpc();
         // invoke publish assets
         await program.methods
-            .publishAssets(1, url)
+            .publishAsset(1, shadowAccount)
             .accounts({
                 datum: pdaOne,
                 increment: pdaIncrement,
@@ -79,18 +80,14 @@ describe("dap-protocol", () => {
         let actualIncrement = await program.account.increment.fetch(
             pdaIncrement
         );
-        let actualOne = await program.account.datum.fetch(
-            pdaOne
-        );
         // assertions
         assert.ok(actualIncrement.increment === 1);
-        assert.ok(actualOne.seed === 1);
         // invoke again & fail
         let requiredError;
         try {
             // invoke publish assets
             await program.methods
-                .publishAssets(1, url)
+                .publishAsset(1, shadowAccount)
                 .accounts({
                     datum: pdaOne,
                     increment: pdaIncrement,
@@ -119,7 +116,7 @@ describe("dap-protocol", () => {
         try {
             // invoke publish assets
             await program.methods
-                .publishAssets(3, url)
+                .publishAsset(3, shadowAccount)
                 .accounts({
                     datum: pdaThree,
                     increment: pdaIncrement,
@@ -149,7 +146,7 @@ describe("dap-protocol", () => {
         try {
             // invoke publish assets
             await program.methods
-                .publishAssets(2, url)
+                .publishAsset(2, shadowAccount)
                 .accounts({
                     datum: pdaTwo,
                     increment: pdaIncrement,
@@ -166,7 +163,7 @@ describe("dap-protocol", () => {
         // next seed
         // invoke publish assets
         await program.methods
-            .publishAssets(2, url)
+            .publishAsset(2, shadowAccount)
             .accounts({
                 datum: pdaTwo,
                 increment: pdaIncrement,
@@ -180,12 +177,8 @@ describe("dap-protocol", () => {
         actualIncrement = await program.account.increment.fetch(
             pdaIncrement
         );
-        const actualTwo = await program.account.datum.fetch(
-            pdaTwo
-        );
         // assertions
         assert.ok(actualIncrement.increment === 2);
-        assert.ok(actualTwo.seed === 2);
         // transfer tariff authority
         await program.methods
             .transferTariffAuthority()
@@ -255,7 +248,7 @@ describe("dap-protocol", () => {
         // invoke publish assets
         const balance = await provider.connection.getBalance(user02.key.publicKey);
         await program.methods
-            .publishAssets(3, url)
+            .publishAsset(3, shadowAccount)
             .accounts({
                 datum: pdaThree,
                 increment: pdaIncrement,
@@ -268,14 +261,42 @@ describe("dap-protocol", () => {
         actualIncrement = await program.account.increment.fetch(
             pdaIncrement
         );
-        const actualThree = await program.account.datum.fetch(
+        let actualThree = await program.account.datum.fetch(
             pdaThree
         );
         const newBalance = await provider.connection.getBalance(user02.key.publicKey);
         const diff = newBalance - balance;
         // assertions
         assert.ok(actualIncrement.increment === 3);
-        assert.ok(actualThree.seed === 3);
+        assert.ok(actualThree.filtered === false);
         assert.ok(diff === 10000);
+        // invoke filter asset with wrong authority & fail
+        requiredError = false;
+        try {
+            await program02.methods
+                .filterAsset(3)
+                .accounts({
+                    datum: pdaThree,
+                    mint: mint.key.publicKey,
+                    authority: user02.key.publicKey
+                }).rpc();
+        } catch (error) {
+            requiredError = true;
+        }
+        assert(requiredError);
+        // invoke filter asset
+        await program.methods
+            .filterAsset(3)
+            .accounts({
+                datum: pdaThree,
+                mint: mint.key.publicKey,
+                authority: provider.wallet.publicKey
+            }).rpc();
+        actualThree = await program.account.datum.fetch(
+            pdaThree
+        );
+        // assertions
+        assert.ok(actualIncrement.increment === 3);
+        assert.ok(actualThree.filtered === true);
     });
 });
