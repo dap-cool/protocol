@@ -3,7 +3,7 @@ import {version} from "./config";
 import {Metadata, encodeMetadata} from "../metadata";
 import {Connection, PublicKey} from "@solana/web3.js";
 
-export async function client(connection: any, uploader: any): Promise<ShdwDrive> {
+export async function buildClient(connection: any, uploader: any): Promise<ShdwDrive> {
     console.log("build shdw client with finalized commitment");
     // build connection with finalized commitment for initial account creation
     const finalizedConnection = new Connection(connection.rpcEndpoint, "finalized");
@@ -16,7 +16,7 @@ export async function provision(
     file: File
 ): Promise<{ drive: ShdwDrive, account: PublicKey }> {
     // build drive client
-    const drive = await client(connection, uploader);
+    const drive = await buildClient(connection, uploader);
     // create storage account
     console.log("create shdw storage account");
     const size = (((file.size / 1000000) + 2).toString()).split(".")[0] + "MB";
