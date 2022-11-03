@@ -61,7 +61,7 @@ npm i @dap-cool/sdk
 * check out our [integration test](./tests/integration/src/index.js) to see all the imports, how we're bundling, etc.
 
 ```javascript
-async function upload() {
+async function uploadMutable() {
     // select files
     const files = document.getElementById("gg-sd-zip").files;
     // build encryption args
@@ -74,23 +74,50 @@ async function upload() {
     // // you'll want to notify your app what is happening
     // // these methods are intentionally seperated to provide opportunity to notify progress
     const provisioned = await provision(connection, provider.wallet, encrypted.file);
-    // uploaded encrypted file
+    // build metadata
+    const metadata = {
+        key: encrypted.key,
+        lit: litArgs,
+        title: "e2e-demo",
+        zip: {
+            count: files.length,
+            types: Array.from(files).map(file => file.type)
+        },
+        timestamp: Date.now()
+    }
+    const encodedMetadata = encodeMetadata(metadata);
+    // uploaded encrypted file & metadata
     // // this is super fast thanks to shadow-drive throughput
     // // comparable to an AWS S3 upload
-    const url = await uploadFile(encrypted.file, provisioned.drive, provisioned.account);
-    // build metadata
-    const metadata = buildMetaData(encrypted.key, litArgs, "e2e-demo");
-    // upload metadata
-    await uploadFile(metadata, provisioned.drive, provisioned.account);
+    await uploadMultipleFiles(
+        [encrypted.file, encodedMetadata],
+        provisioned.drive,
+        provisioned.account
+    );
+    // publish url to solana
+    // // this is encoding the shadow-drive public key on-chain via solana program-derived-address
+    // // which means we can deterministically find it & don't need a centralized index
+    // // typically very fast (as fast as any other rpc transaction)
+    await increment(program, provider, mint, provisioned.account);
+}
+
+async function editMetadata() {
+    // edit metadata before marking as immutable
+    // // create new shadow client
+    const drive = await buildClient(connection, provider.wallet);
+    // // deterministically find latest upload
+    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
+    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    // // fetch existing metadata from latest uploader
+    // // has stuff for decryption that we need to copy to new metadata
+    const oldMetadata = await getMetaData(datumPda.shadow.url);
+    // // this is super fast because shadow-drive is already provisioned
+    // // throughput is comparable to an AWS S3 upload
+    await editMetaData(drive, datumPda.shadow.account, oldMetadata, "new-title");
     // mark as immutable
     // // this takes about 15seconds again to mark the storage as immutable
     // // technically this optional but we highly recommend it to promote web3 ethos
-    await markAsImmutable(provisioned.drive, provisioned.account);
-    // publish url to solana
-    // // this is encoding the shadow-drive URL inside a solana pda
-    // // which means we can deterministically find it & don't need a centralized index
-    // // typically very fast (as fast as any other rpc transaction)
-    await increment(program, provider, mint, url);
+    await markAsImmutable(drive, datumPda.shadow.account);
 }
 
 async function download() {
@@ -99,13 +126,22 @@ async function download() {
     const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
     // get datum (of latest upload)
     // // deterministically find the URL of the latest upload
-    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    let datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    // fetch metadata (of latest upload) from shadow-drive
+    const metadata = await getMetaData(datumPda.shadow.url);
     // fetch & decrypt files
     // // super fast thanks to shadow-drive, LIT, and a bunch of WASM
     // // does not charge any gas but does require a message signature (to prove ownership of the mint)
-    const decryptedZip = await decrypt(datumPda.url);
+    const decryptedZip = await decrypt(datumPda.shadow.url, metadata);
     // download zip
     downloadZip(decryptedZip);
+    // mark upload as filtered
+    // // this provides a method for UIs to not render certain uploads
+    // // if an uploader chooses without actually removing the upload from the blockchain
+    // // so we guarantee legacy users of the upload can still access the files
+    await filter(program, provider, mint, incrementPda.increment);
+    datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    console.log(datumPda);
 }
 ```
 
