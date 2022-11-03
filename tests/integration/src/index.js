@@ -51,6 +51,10 @@ async function uploadMutable() {
         key: encrypted.key,
         lit: litArgs,
         title: "e2e-demo",
+        zip: {
+            count: files.length,
+            types: Array.from(files).map(file => file.type)
+        },
         timestamp: Date.now()
     }
     const encodedMetadata = encodeMetadata(metadata);
