@@ -9,10 +9,18 @@ export interface LitArgs {
 }
 
 export interface Metadata {
+    // lit protocol dependencies
     key: Uint8Array
     lit: LitArgs
+    // generics
     title: string
+    zipMetadata: ZipMetadata
     timestamp: number
+}
+
+export interface ZipMetadata {
+    count: number, // number of files in zip
+    types: string[] // file types in zip
 }
 
 export function encodeMetadata(metadata: Metadata): File {
@@ -34,6 +42,7 @@ export async function getMetaData(url): Promise<Metadata> {
         key: new Uint8Array(Object.values(keys)),
         lit: fetched.lit,
         title: fetched.title,
+        zipMetadata: fetched.zipMetadata,
         timestamp: fetched.timestamp
     }
 }
