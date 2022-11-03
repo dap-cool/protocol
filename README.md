@@ -46,7 +46,7 @@ npm i @dap-cool/sdk
 * The [Solana Program](./programs/dap-protocol/src/lib.rs) provides methods for deterministically finding uploaded files
   via [program-derived-addresses](https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses)
 
-* The [JavaScript SDK](./sdk/src/index.js) provides methods for
+* The [TypeScript SDK](./sdk/src/index.js) provides methods for
     * Encrypting your files with an NFT mint address
         * typically [FileList](https://developer.mozilla.org/en-US/docs/Web/API/FileList) objects from your HTML input
             * zips your file-list before encrypting
