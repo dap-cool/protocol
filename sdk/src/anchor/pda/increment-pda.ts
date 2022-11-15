@@ -9,6 +9,23 @@ export interface Increment {
     pda: Address
 }
 
+export async function getManyIncrementPda(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    uploaderArray: PublicKey[]
+): Promise<Increment[]> {
+    // derive pda for each uploader
+    const derived: Address[] = await Promise.all(
+        uploaderArray.map(async (publicKey) =>
+            await deriveIncrementPda(program, mint, publicKey)
+        )
+    )
+    // fetch all PDAs in one batch
+    const fetched: (Object | null)[] = await program.account.increment.fetchMultiple(derived);
+    console.log(fetched);
+    return fetched.filter(Boolean) as Increment[]
+}
+
 export async function getIncrementPda(
     program: Program<DapProtocol>,
     mint: PublicKey,
