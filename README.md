@@ -106,8 +106,9 @@ async function editMetadata() {
     // // create new shadow client
     const drive = await buildClient(connection, provider.wallet);
     // // deterministically find latest upload
-    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
-    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    const incrementPda = await deriveIncrementPda(program, mint, provider.wallet.publicKey);
+    const fetchedIncrement = await getIncrementPda(program, incrementPda);
+    const datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, fetchedIncrement.increment);
     // // fetch existing metadata from latest uploader
     // // has stuff for decryption that we need to copy to new metadata
     const oldMetadata = await getMetaData(datumPda.shadow.url);
@@ -123,10 +124,11 @@ async function editMetadata() {
 async function download() {
     // get increment pda
     // // deterministically find how many times this user has uploaded behind this mint
-    const incrementPda = await getIncrementPda(program, mint, provider.wallet.publicKey);
+    const incrementPda = await deriveIncrementPda(program, mint, provider.wallet.publicKey);
+    const fetchedIncrement = await getIncrementPda(program, incrementPda);
     // get datum (of latest upload)
     // // deterministically find the URL of the latest upload
-    let datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    let datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, fetchedIncrement.increment);
     // fetch metadata (of latest upload) from shadow-drive
     const metadata = await getMetaData(datumPda.shadow.url);
     // fetch & decrypt files
@@ -139,8 +141,8 @@ async function download() {
     // // this provides a method for UIs to not render certain uploads
     // // if an uploader chooses without actually removing the upload from the blockchain
     // // so we guarantee legacy users of the upload can still access the files
-    await filter(program, provider, mint, incrementPda.increment);
-    datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, incrementPda.increment);
+    await filter(program, provider, mint, fetchedIncrement.increment);
+    datumPda = await getDatumPda(program, mint, provider.wallet.publicKey, fetchedIncrement.increment);
     console.log(datumPda);
 }
 ```
