@@ -1,14 +1,16 @@
 use anchor_lang::prelude::*;
 
-declare_id!("FHigg3vfJmJMcypFbYrk9rZubV6Ap9nbLJPGnDFyFJ3c");
+declare_id!("FN1ojBdrqroTF8yQzgJt451zxWmprc2sqV9ajcec7tQM");
 
 #[program]
 pub mod dap_protocol {
     use super::*;
 
     pub fn initialize_increment(
-        _ctx: Context<InitializeIncrement>,
+        ctx: Context<InitializeIncrement>,
     ) -> Result<()> {
+        let increment = &mut ctx.accounts.increment;
+        increment.authority = ctx.accounts.payer.key();
         Ok(())
     }
 
@@ -27,12 +29,14 @@ pub mod dap_protocol {
         // assert that datum is produced in sequence
         assert_eq!(increment, index);
         increment_pda.increment = increment;
-        // mint
-        datum.mint = ctx.accounts.mint.key();
         // shadow account
         datum.shadow = shadow;
         // filtered
         datum.filtered = false;
+        // authority
+        datum.authority = payer.key();
+        // index
+        datum.index = index;
         // tariff
         Tariff::pay_tariff(tariff, tariff_authority, payer)
     }
@@ -186,25 +190,28 @@ pub struct SetNewTariff<'info> {
 
 #[account]
 pub struct Datum {
-    // target mint
-    pub mint: Pubkey,
     // shadow account
     pub shadow: Pubkey,
     // filtered
     pub filtered: bool,
+    // authority
+    pub authority: Pubkey,
+    // index
+    pub index: u8,
 }
 
 impl Datum {
-    const SPACE: usize = 8 + 32 + 32 + 1;
+    const SPACE: usize = 8 + 32 + 1 + 32 + 1;
 }
 
 #[account]
 pub struct Increment {
     pub increment: u8,
+    pub authority: Pubkey,
 }
 
 impl Increment {
-    const SPACE: usize = 8 + 1;
+    const SPACE: usize = 8 + 1 + 32;
 }
 
 #[account]
