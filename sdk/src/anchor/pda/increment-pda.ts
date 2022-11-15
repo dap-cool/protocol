@@ -3,10 +3,13 @@ import {PublicKey} from "@solana/web3.js";
 import {DapProtocol} from "../idl";
 
 export interface Increment {
-    mint: PublicKey
     uploader: PublicKey
     increment: number
-    pda: Address
+}
+
+interface Raw {
+    authority: PublicKey
+    increment: number
 }
 
 export async function getManyIncrementPda(
@@ -22,29 +25,29 @@ export async function getManyIncrementPda(
     )
     // fetch all PDAs in one batch
     const fetched: (Object | null)[] = await program.account.increment.fetchMultiple(derived);
-    console.log(fetched);
-    return fetched.filter(Boolean) as Increment[]
+    // filter nulls & map to interface
+    return fetched.filter(Boolean).map(object => {
+        const raw = object as Raw;
+        return {
+            uploader: raw.authority,
+            increment: raw.increment
+        } as Increment
+    })
 }
 
 export async function getIncrementPda(
     program: Program<DapProtocol>,
-    mint: PublicKey,
-    uploader: PublicKey
+    pda: Address,
 ): Promise<Increment | null> {
     let response: Increment | null;
     try {
-        const fetched = await fetchIncrementPda(program, mint, uploader);
+        const fetched = await program.account.increment.fetch(pda);
         response = {
-            mint: mint,
-            uploader: uploader,
-            increment: fetched.increment.increment,
-            pda: fetched.pda
+            uploader: fetched.authority,
+            increment: fetched.increment
         }
     } catch (error) {
         console.log(error);
-        let msg = "could not find pda-increment with uploader: {" + uploader.toString();
-        msg = msg + "} " + "and mint: {" + mint.toString() + "}";
-        console.log(msg);
         response = null
     }
     return response
@@ -67,18 +70,3 @@ export async function deriveIncrementPda(
     return pda
 }
 
-
-async function fetchIncrementPda(
-    program: Program<DapProtocol>,
-    mint: PublicKey,
-    uploader: PublicKey
-): Promise<{ pda: Address, increment }> {
-    // derive pda
-    const pda: Address = await deriveIncrementPda(program, mint, uploader);
-    // fetch pda
-    const increment: any = await program.account.increment.fetch(pda);
-    return {
-        pda,
-        increment
-    }
-}

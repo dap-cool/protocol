@@ -175,16 +175,20 @@ export type DapProtocol = {
         "kind": "struct",
         "fields": [
           {
-            "name": "mint",
-            "type": "publicKey"
-          },
-          {
             "name": "shadow",
             "type": "publicKey"
           },
           {
             "name": "filtered",
             "type": "bool"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "index",
+            "type": "u8"
           }
         ]
       }
@@ -197,6 +201,10 @@ export type DapProtocol = {
           {
             "name": "increment",
             "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
           }
         ]
       }
@@ -404,16 +412,20 @@ export const IDL: DapProtocol = {
         "kind": "struct",
         "fields": [
           {
-            "name": "mint",
-            "type": "publicKey"
-          },
-          {
             "name": "shadow",
             "type": "publicKey"
           },
           {
             "name": "filtered",
             "type": "bool"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "index",
+            "type": "u8"
           }
         ]
       }
@@ -426,6 +438,10 @@ export const IDL: DapProtocol = {
           {
             "name": "increment",
             "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
           }
         ]
       }

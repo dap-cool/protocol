@@ -1,5 +1,5 @@
 import {PublicKey, SystemProgram} from "@solana/web3.js";
-import {Address, AnchorProvider, Program} from "@project-serum/anchor";
+import {AnchorProvider, Program} from "@project-serum/anchor";
 import {Increment, getIncrementPda, deriveDatumPda, deriveIncrementPda} from "../pda";
 import {deriveTariffPda} from "../pda/tariff-pda"
 import {BOSS} from "../config";
@@ -11,11 +11,12 @@ export async function increment(
     mint: PublicKey,
     shadowAccount: PublicKey
 ): Promise<void> {
-    // derive & fetch increment
+    // derive increment pda
+    const incrementPda = await deriveIncrementPda(program, mint, provider.wallet.publicKey);
+    // fetch increment pda
     const maybeIncrement: Increment | null = await getIncrementPda(
         program,
-        mint,
-        provider.wallet.publicKey
+        incrementPda
     );
     let increment: Increment;
     if (maybeIncrement) {
@@ -23,24 +24,22 @@ export async function increment(
     } else {
         // dne --> init
         console.log("found new uploader -- initializing their increment")
-        const pda = await init(program, provider, mint);
+        await init(program, provider, mint);
         increment = {
-            mint: mint,
             uploader: provider.wallet.publicKey,
-            increment: 0,
-            pda: pda
+            increment: 0
         }
     }
     const newIncrement: number = increment.increment + 1;
     // derive pda datum
-    const pdaDatum = await deriveDatumPda(
+    const datumPda = await deriveDatumPda(
         program,
         mint,
         provider.wallet.publicKey,
         newIncrement
     );
     // derive tariff
-    const pdaTariff = await deriveTariffPda(
+    const tariffPda = await deriveTariffPda(
         program
     );
     const index: any = newIncrement;
@@ -49,10 +48,10 @@ export async function increment(
     await program.methods
         .publishAsset(index, shadow)
         .accounts({
-            datum: pdaDatum,
-            increment: increment.pda,
+            datum: datumPda,
+            increment: incrementPda,
             mint: mint,
-            tariff: pdaTariff,
+            tariff: tariffPda,
             tariffAuthority: BOSS,
             payer: provider.wallet.publicKey,
         })
@@ -63,7 +62,7 @@ export async function init(
     program: Program<DapProtocol>,
     provider: AnchorProvider,
     mint: PublicKey
-): Promise<Address> {
+): Promise<void> {
     // derive increment pda
     const incrementPda = await deriveIncrementPda(
         program,
@@ -79,5 +78,4 @@ export async function init(
             payer: provider.wallet.publicKey,
             systemProgram: SystemProgram.programId
         }).rpc();
-    return incrementPda
 }

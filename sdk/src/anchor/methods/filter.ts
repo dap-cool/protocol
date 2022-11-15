@@ -9,8 +9,8 @@ export async function filter(
     mint: PublicKey,
     index: number
 ): Promise<void> {
-    // derive pda datum
-    const pdaDatum = await deriveDatumPda(
+    // derive datum pda
+    const datumPda = await deriveDatumPda(
         program,
         mint,
         provider.wallet.publicKey,
@@ -20,7 +20,7 @@ export async function filter(
     await program.methods
         .filterAsset(index as any)
         .accounts({
-            datum: pdaDatum,
+            datum: datumPda,
             mint: mint,
             authority: provider.wallet.publicKey
         }).rpc()

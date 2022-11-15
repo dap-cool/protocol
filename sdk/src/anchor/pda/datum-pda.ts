@@ -1,9 +1,9 @@
 import {Program, Address} from "@project-serum/anchor";
 import {PublicKey} from "@solana/web3.js";
 import {DapProtocol} from "../idl";
+import {Increment} from "./increment-pda";
 
 export interface Datum {
-    mint: PublicKey
     uploader: PublicKey
     index: number
     filtered: boolean
@@ -11,7 +11,46 @@ export interface Datum {
         account: PublicKey,
         url: string
     }
-    pda: Address
+}
+
+interface Raw {
+    authority: PublicKey
+    index: number
+    filtered: boolean
+    shadow: PublicKey
+}
+
+export async function getManyDatumPda(
+    program: Program<DapProtocol>,
+    mint: PublicKey,
+    increments: Increment[],
+): Promise<Datum[]> {
+    return (await Promise.all(
+        // build index range for each increment
+        increments.flatMap(async (increment) => {
+            // derive datum pda for each index
+            const pdaArray: (PublicKey | string)[] = await Promise.all(
+                Array.from(new Array(increment.increment), async (_, i) => {
+                    return await deriveDatumPda(program, mint, increment.uploader, i + 1)
+                })
+            );
+            // fetch all pda-array in batch
+            const fetched: (Object | null)[] = await program.account.datum.fetchMultiple(pdaArray);
+            // filter nulls & map obj to interface
+            return fetched.filter(Boolean).map(object => {
+                const raw = object as Raw;
+                return {
+                    uploader: raw.authority,
+                    index: raw.index,
+                    filtered: raw.filtered,
+                    shadow: {
+                        account: raw.shadow,
+                        url: buildUrl(raw.shadow)
+                    }
+                } as Datum
+            })
+        })
+    )).flatMap<Datum>((x) => x)
 }
 
 export async function getDatumPda(
@@ -22,15 +61,13 @@ export async function getDatumPda(
 ): Promise<Datum> {
     const fetched = await fetchDatumPda(program, mint, uploader, index);
     return {
-        mint: fetched.datum.mint,
         uploader: fetched.datum.authority,
         index: index,
         filtered: fetched.datum.filtered,
         shadow: {
             account: fetched.datum.shadow,
             url: buildUrl(fetched.datum.shadow)
-        },
-        pda: fetched.pda
+        }
     }
 }
 
