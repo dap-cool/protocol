@@ -24,36 +24,37 @@ interface Raw {
 
 export async function getManyDatumPda(
     program: Program<DapProtocol>,
-    mint: PublicKey,
     increments: Increment[],
 ): Promise<Datum[]> {
-    return (await Promise.all(
-        // build index range for each increment
-        increments.flatMap(async (increment) => {
+    // build index range for each increment
+    const pdaArray: (PublicKey | string)[] = (await Promise.all(
+        increments.map(async (increment) =>
             // derive datum pda for each index
-            const pdaArray: (PublicKey | string)[] = await Promise.all(
-                Array.from(new Array(increment.increment), async (_, i) => {
-                    return await deriveDatumPda(program, mint, increment.uploader, i + 1)
-                })
-            );
-            // fetch all pda-array in batch
-            const fetched: (Object | null)[] = await program.account.datum.fetchMultiple(pdaArray);
-            // filter nulls & map obj to interface
-            return fetched.filter(Boolean).map(object => {
-                const raw = object as Raw;
-                return {
-                    mint: raw.mint,
-                    uploader: raw.authority,
-                    index: raw.index,
-                    filtered: raw.filtered,
-                    shadow: {
-                        account: raw.shadow,
-                        url: buildUrl(raw.shadow)
-                    }
-                } as Datum
-            })
-        })
-    )).flatMap<Datum>((x) => x)
+            await Promise.all(
+                Array.from(new Array(increment.increment), async (_, i) =>
+                    await deriveDatumPda(program, increment.mint, increment.uploader, i + 1)
+                )
+            )
+        )
+    )).flatMap<Address>(x => x)
+    // fetch all pda-array in batch
+    const fetched: (Object | null)[] = await program.account.datum.fetchMultiple(
+        pdaArray
+    );
+    // filter nulls & map obj to interface
+    return fetched.filter(Boolean).map(object => {
+        const raw = object as Raw;
+        return {
+            mint: raw.mint,
+            uploader: raw.authority,
+            index: raw.index,
+            filtered: raw.filtered,
+            shadow: {
+                account: raw.shadow,
+                url: buildUrl(raw.shadow)
+            }
+        } as Datum
+    })
 }
 
 export async function getDatumPda(

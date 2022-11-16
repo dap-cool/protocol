@@ -14,7 +14,7 @@ interface Raw {
     increment: number
 }
 
-export async function getManyIncrementPda(
+export async function getManyIncrementPdaByUploader(
     program: Program<DapProtocol>,
     mint: PublicKey,
     uploaderArray: PublicKey[]
@@ -25,8 +25,17 @@ export async function getManyIncrementPda(
             await deriveIncrementPda(program, mint, publicKey)
         )
     )
+    return await getManyIncrementPda(program, derived)
+}
+
+async function getManyIncrementPda(
+    program: Program<DapProtocol>,
+    pdaArray: Address[]
+): Promise<Increment[]> {
     // fetch all PDAs in one batch
-    const fetched: (Object | null)[] = await program.account.increment.fetchMultiple(derived);
+    const fetched: (Object | null)[] = await program.account.increment.fetchMultiple(
+        pdaArray
+    );
     // filter nulls & map to interface
     return fetched.filter(Boolean).map(object => {
         const raw = object as Raw;
