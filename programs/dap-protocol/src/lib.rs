@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("FN1ojBdrqroTF8yQzgJt451zxWmprc2sqV9ajcec7tQM");
+declare_id!("3fPCHGZzzBzcaBpq3Y7Nfj8W4AbA5wCVFyJghgcDMvmW");
 
 #[program]
 pub mod dap_protocol {
@@ -10,6 +10,7 @@ pub mod dap_protocol {
         ctx: Context<InitializeIncrement>,
     ) -> Result<()> {
         let increment = &mut ctx.accounts.increment;
+        increment.mint = ctx.accounts.mint.key();
         increment.authority = ctx.accounts.payer.key();
         Ok(())
     }
@@ -29,16 +30,22 @@ pub mod dap_protocol {
         // assert that datum is produced in sequence
         assert_eq!(increment, index);
         increment_pda.increment = increment;
+        // mint
+        datum.mint = ctx.accounts.mint.key();
+        // authority
+        datum.authority = payer.key();
         // shadow account
         datum.shadow = shadow;
         // filtered
         datum.filtered = false;
-        // authority
-        datum.authority = payer.key();
         // index
         datum.index = index;
         // tariff
-        Tariff::pay_tariff(tariff, tariff_authority, payer)
+        Tariff::pay_tariff(
+            tariff,
+            tariff_authority,
+            payer
+        )
     }
 
     pub fn filter_asset(
@@ -190,28 +197,34 @@ pub struct SetNewTariff<'info> {
 
 #[account]
 pub struct Datum {
+    // target mint
+    pub mint: Pubkey,
+    // authority
+    pub authority: Pubkey,
     // shadow account
     pub shadow: Pubkey,
     // filtered
     pub filtered: bool,
-    // authority
-    pub authority: Pubkey,
-    // index
+    // target index
     pub index: u8,
 }
 
 impl Datum {
-    const SPACE: usize = 8 + 32 + 1 + 32 + 1;
+    const SPACE: usize = 8 + 32 + 32 + 32 + 1 + 1;
 }
 
 #[account]
 pub struct Increment {
-    pub increment: u8,
+    // target mint
+    pub mint: Pubkey,
+    // authority
     pub authority: Pubkey,
+    // increment total
+    pub increment: u8,
 }
 
 impl Increment {
-    const SPACE: usize = 8 + 1 + 32;
+    const SPACE: usize = 8 + 32 + 32 + 1;
 }
 
 #[account]

@@ -175,16 +175,20 @@ export type DapProtocol = {
         "kind": "struct",
         "fields": [
           {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
             "name": "shadow",
             "type": "publicKey"
           },
           {
             "name": "filtered",
             "type": "bool"
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
           },
           {
             "name": "index",
@@ -199,12 +203,16 @@ export type DapProtocol = {
         "kind": "struct",
         "fields": [
           {
-            "name": "increment",
-            "type": "u8"
+            "name": "mint",
+            "type": "publicKey"
           },
           {
             "name": "authority",
             "type": "publicKey"
+          },
+          {
+            "name": "increment",
+            "type": "u8"
           }
         ]
       }
@@ -412,16 +420,20 @@ export const IDL: DapProtocol = {
         "kind": "struct",
         "fields": [
           {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
             "name": "shadow",
             "type": "publicKey"
           },
           {
             "name": "filtered",
             "type": "bool"
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
           },
           {
             "name": "index",
@@ -436,12 +448,16 @@ export const IDL: DapProtocol = {
         "kind": "struct",
         "fields": [
           {
-            "name": "increment",
-            "type": "u8"
+            "name": "mint",
+            "type": "publicKey"
           },
           {
             "name": "authority",
             "type": "publicKey"
+          },
+          {
+            "name": "increment",
+            "type": "u8"
           }
         ]
       }

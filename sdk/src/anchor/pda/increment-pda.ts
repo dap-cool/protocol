@@ -3,11 +3,13 @@ import {PublicKey} from "@solana/web3.js";
 import {DapProtocol} from "../idl";
 
 export interface Increment {
+    mint: PublicKey
     uploader: PublicKey
     increment: number
 }
 
 interface Raw {
+    mint: PublicKey
     authority: PublicKey
     increment: number
 }
@@ -29,6 +31,7 @@ export async function getManyIncrementPda(
     return fetched.filter(Boolean).map(object => {
         const raw = object as Raw;
         return {
+            mint: raw.mint,
             uploader: raw.authority,
             increment: raw.increment
         } as Increment
@@ -43,6 +46,7 @@ export async function getIncrementPda(
     try {
         const fetched = await program.account.increment.fetch(pda);
         response = {
+            mint: fetched.mint,
             uploader: fetched.authority,
             increment: fetched.increment
         }

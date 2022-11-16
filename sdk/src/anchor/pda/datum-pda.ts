@@ -4,6 +4,7 @@ import {DapProtocol} from "../idl";
 import {Increment} from "./increment-pda";
 
 export interface Datum {
+    mint: PublicKey
     uploader: PublicKey
     index: number
     filtered: boolean
@@ -14,6 +15,7 @@ export interface Datum {
 }
 
 interface Raw {
+    mint: PublicKey
     authority: PublicKey
     index: number
     filtered: boolean
@@ -40,6 +42,7 @@ export async function getManyDatumPda(
             return fetched.filter(Boolean).map(object => {
                 const raw = object as Raw;
                 return {
+                    mint: raw.mint,
                     uploader: raw.authority,
                     index: raw.index,
                     filtered: raw.filtered,
@@ -61,6 +64,7 @@ export async function getDatumPda(
 ): Promise<Datum> {
     const fetched = await fetchDatumPda(program, mint, uploader, index);
     return {
+        mint: fetched.datum.mint,
         uploader: fetched.datum.authority,
         index: index,
         filtered: fetched.datum.filtered,

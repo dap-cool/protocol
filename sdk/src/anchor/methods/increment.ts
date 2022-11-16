@@ -26,6 +26,7 @@ export async function increment(
         console.log("found new uploader -- initializing their increment")
         await init(program, provider, mint);
         increment = {
+            mint: mint,
             uploader: provider.wallet.publicKey,
             increment: 0
         }
