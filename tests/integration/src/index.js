@@ -8,7 +8,7 @@ import {
     markAsImmutable,
     provision, uploadMultipleFiles, increment,
     buildClient, editMetaData, getMetaData, filter,
-    deriveIncrementPda
+    deriveIncrementPda, getManyIncrementPdaByUploader, getManyDatumPda
 } from "@dap-cool/sdk";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
@@ -31,6 +31,7 @@ const mint = new web3.PublicKey("SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y");
 async function e2e() {
     await uploadMutable();
     await editMetadata();
+    await getMany();
     await download();
 }
 
@@ -92,6 +93,23 @@ async function editMetadata() {
     // // this takes about 15seconds again to mark the storage as immutable
     // // technically this optional but we highly recommend it to promote web3 ethos
     await markAsImmutable(drive, datumPda.shadow.account);
+}
+
+async function getMany() {
+    // derive dummy public-key with no uploads for testing
+    const dummy = web3.Keypair.generate();
+    // // deterministically find all uploads with duplicate uploader
+    const incrementArray = await getManyIncrementPdaByUploader(
+        program,
+        mint,
+        [provider.wallet.publicKey,
+            provider.wallet.publicKey, // intentionally duplicated
+            dummy.publicKey
+        ]
+    );
+    console.log("increment array -->", incrementArray);
+    const datumArray = await getManyDatumPda(program, incrementArray);
+    console.log("datum array -->", datumArray);
 }
 
 async function download() {
