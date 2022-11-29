@@ -10,18 +10,17 @@ import {
     buildClient, editMetaData, getMetaData, filter,
     deriveIncrementPda, getManyIncrementPdaByUploader, getManyDatumPda
 } from "@dap-cool/sdk";
+import {saveAs} from "file-saver";
 import {getPhantom} from "./phantom";
 import {PhantomWallet} from "./wallet";
-import {saveAs} from "file-saver";
+import {RPC_URL} from "./rpc";
 
 // get phantom
 const phantom = await getPhantom();
 // build wallet
 const wallet = new PhantomWallet(phantom);
 // build connection
-const network = web3.clusterApiUrl("mainnet-beta");
-console.log(network);
-const connection = new web3.Connection(network, AnchorProvider.defaultOptions());
+const connection = new web3.Connection(RPC_URL, AnchorProvider.defaultOptions());
 // build provider & program
 const provider = getProvider(wallet, connection);
 const program = getProgram(provider);

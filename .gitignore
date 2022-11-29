@@ -14,6 +14,7 @@ index.html
 
 # js build artifacts
 web/js/bundle.js
+rpc.js
 
 # elm build artifacts
 elm-stuff/
