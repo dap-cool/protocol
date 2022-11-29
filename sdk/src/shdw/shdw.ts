@@ -59,6 +59,6 @@ export async function editMetaData(
 
 const URL_PREFIX = "https://shdw-drive.genesysgo.net/";
 
-function buildUrl(shadowAccount: PublicKey) {
+export function buildUrl(shadowAccount: PublicKey) {
     return (URL_PREFIX + shadowAccount.toString() + "/")
 }
