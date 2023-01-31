@@ -13,13 +13,13 @@ export async function buildClient(connection: any, uploader: any): Promise<ShdwD
 export async function provision(
     connection: any,
     uploader: any,
-    file: File
+    fileSize: number
 ): Promise<{ drive: ShdwDrive, account: PublicKey }> {
     // build drive client
     const drive = await buildClient(connection, uploader);
     // create storage account
     console.log("create shdw storage account");
-    const size = (((file.size / 1000000) + 2).toString()).split(".")[0] + "MB";
+    const size = (((fileSize / 1000000) + 2).toString()).split(".")[0] + "MB";
     console.log(size);
     const createStorageResponse = await drive.createStorageAccount("dap-cool", size, version)
     const account = new PublicKey(createStorageResponse.shdw_bucket);
