@@ -73,7 +73,7 @@ async function uploadMutable() {
     // // this takes about 15seconds to provision decentralized storage
     // // you'll want to notify your app what is happening
     // // these methods are intentionally seperated to provide opportunity to notify progress
-    const provisioned = await provision(connection, provider.wallet, encrypted.file);
+    const provisioned = await provision(connection, provider.wallet, encrypted.file.size);
     // build metadata
     const metadata = {
         key: encrypted.key,
@@ -119,6 +119,23 @@ async function editMetadata() {
     // // this takes about 15seconds again to mark the storage as immutable
     // // technically this optional but we highly recommend it to promote web3 ethos
     await markAsImmutable(drive, datumPda.shadow.account);
+}
+
+async function getMany() {
+    // derive dummy public-key with no uploads for testing
+    const dummy = web3.Keypair.generate();
+    // // deterministically find all uploads with duplicate uploader
+    const incrementArray = await getManyIncrementPdaByUploader(
+        program,
+        mint,
+        [provider.wallet.publicKey,
+            provider.wallet.publicKey, // intentionally duplicated
+            dummy.publicKey
+        ]
+    );
+    console.log("increment array -->", incrementArray);
+    const datumArray = await getManyDatumPda(program, incrementArray);
+    console.log("datum array -->", datumArray);
 }
 
 async function download() {
