@@ -46,7 +46,7 @@ async function uploadMutable() {
     // // this takes about 15seconds to provision decentralized storage
     // // you'll want to notify your app what is happening
     // // these methods are intentionally seperated to provide opportunity to notify progress
-    const provisioned = await provision(connection, provider.wallet, encrypted.file);
+    const provisioned = await provision(connection, provider.wallet, encrypted.file.size);
     // build metadata
     const metadata = {
         key: encrypted.key,
